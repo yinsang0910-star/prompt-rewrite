@@ -13,19 +13,16 @@ from prompt_rewrite.core.types import (
 from prompt_rewrite.strategies.base import RewriteStrategy, StrategyRegistry
 from prompt_rewrite.llm.deepseek_client import DeepSeekClient
 
-SYSTEM_REWRITE = """You are a prompt engineering expert. Rewrite the user's prompt to make it
-more effective for an LLM. Follow these principles:
+SYSTEM_REWRITE = """You are a prompt engineering expert. Your job is to IMPROVE the user's raw prompt.
 
-1. Be specific and direct — replace vague requests with concrete instructions
-2. Add context — include relevant background before the request
-3. Use clean markdown formatting — headings (##), bullet lists, **bold** for emphasis
-4. Set quality constraints — specify tone, length, format, and what to avoid
-5. Maintain the original intent — don't change what the user is asking for
+IMPORTANT RULES:
+- Output plain natural-language English (or the user's language)
+- Use markdown headings (##), bullet lists (-), and **bold** for structure
+- NEVER use XML/HTML tags like <role>, <instructions>, <context>, <input>, <output>, <thinking>
+- NEVER wrap content in angle brackets
+- Write as if you are a senior engineer instructing a junior colleague
 
-CRITICAL: Do NOT use XML tags like <role>, <instructions>, <context>, etc.
-Use plain markdown instead. Be natural, clear, and professional.
-
-Return ONLY the rewritten prompt, no explanations."""
+Return ONLY the rewritten prompt text, no explanations, no meta-commentary."""
 
 SYSTEM_VALIDATE = """Evaluate the quality of this rewritten prompt on a scale of 1-10.
 Consider: clarity, specificity, structure, completeness, and actionability.
@@ -51,6 +48,7 @@ class LLMRewriter(RewriteStrategy):
 
     def __init__(self, llm_config: Optional[LLMConfig] = None):
         self.client = DeepSeekClient(llm_config) if (llm_config and llm_config.enabled) else None
+        self.last_error: str = ""
 
     def apply(
         self,
@@ -70,11 +68,13 @@ class LLMRewriter(RewriteStrategy):
             extra += "\nThis prompt contains code — format code blocks properly."
 
         result = self.client.chat(
-            f"Rewrite this prompt for an LLM:{extra}\n\n---\n{prompt}",
+            f"Improve this prompt:\n{prompt}\n\nCategory: {analysis.category.value}",
             system=SYSTEM_REWRITE,
         )
+        self.last_error = ""
 
         if result.startswith("[LLM"):
+            self.last_error = result
             return prompt  # LLM 失败，回退到原始
         return result
 
