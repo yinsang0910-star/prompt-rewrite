@@ -225,6 +225,12 @@ def _find_free_port(start=8000):
 
 
 def main():
+    # Fix: --noconsole makes stderr None, uvicorn crashes
+    if sys.stderr is None:
+        sys.stderr = open(os.devnull, "w")
+    if sys.stdout is None:
+        sys.stdout = open(os.devnull, "w")
+
     port = _find_free_port()
     host = "0.0.0.0"
     url = f"http://localhost:{port}"
