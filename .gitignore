@@ -2,32 +2,28 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
-dist/
-build/
 *.egg
-.venv/
-venv/
+.pytest_cache/
+
+# Build / Dist
+build/
+dist/
+*.zip
+*.exe
+*.spec
 
 # IDE
 .vscode/
 .idea/
-*.swp
-*.swo
+*.sw?
+.ropeproject/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific
-*.log
+# Project
 .env
+*.log
 .reasonix/
-*.zip
-*.spec
-build/
-dist/
-*.zip
-PromptRewrite-v0.2.0-portable/
-PromptRewrite.spec
-PromptRewrite.exe
-dist/
+.workbuddy/

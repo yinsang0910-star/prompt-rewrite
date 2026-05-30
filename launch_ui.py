@@ -232,7 +232,7 @@ def main():
         sys.stdout = open(os.devnull, "w")
 
     port = _find_free_port()
-    host = "0.0.0.0"
+    host = "127.0.0.1"
     url = f"http://localhost:{port}"
 
     # Auto-open browser
