@@ -211,9 +211,22 @@ async def api_rewrite(req: Request):
 
 
 # ── Entry point ──
+def _find_free_port(start=8000):
+    import socket
+    for p in range(start, start + 100):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.bind(("", p))
+            s.close()
+            return p
+        except OSError:
+            continue
+    return start  # fallback
+
+
 def main():
-    port = int(os.environ.get("PORT", 8000))
-    host = os.environ.get("HOST", "0.0.0.0")
+    port = _find_free_port()
+    host = "0.0.0.0"
     url = f"http://localhost:{port}"
 
     # Auto-open browser
