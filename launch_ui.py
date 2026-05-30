@@ -9,7 +9,6 @@ import sys
 import os
 import json
 import dataclasses
-import webbrowser
 import threading
 from pathlib import Path
 from typing import Any
@@ -239,12 +238,19 @@ def main():
         print(banner.encode('ascii', errors='replace').decode('ascii'))
     sys.stdout.flush()
 
-    # Auto-open browser after 1.5s
+    # Auto-open browser after server starts
     url = f"http://localhost:{port}"
     def _open_browser():
         import time
         time.sleep(1.5)
-        webbrowser.open(url)
+        try:
+            if sys.platform == "win32":
+                os.startfile(url)
+            else:
+                import webbrowser
+                webbrowser.open(url)
+        except Exception:
+            pass  # never crash the server just because browser won't open
     threading.Thread(target=_open_browser, daemon=True).start()
 
     try:
@@ -258,8 +264,11 @@ def main():
         print("\nShutting down...")
     except Exception as e:
         print(f"\nERROR: {e}")
-        print("\nPress Enter to exit...")
-        input()
+        print("\nPress Enter to exit...", end="")
+        try:
+            input()
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":

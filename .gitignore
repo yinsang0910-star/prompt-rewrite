@@ -26,3 +26,6 @@ Thumbs.db
 *.spec
 build/
 dist/
+*.zip
+PromptRewrite-v0.2.0-portable/
+PromptRewrite.spec
