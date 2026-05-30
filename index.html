@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Rewrite System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --primary: #6366f1;
+      --primary-soft: #818cf8;
+      --primary-glow: rgba(99,102,241,0.25);
+      --bg: #0a0a14;
+      --bg-card: #12121e;
+      --bg-card-hover: #181828;
+      --bg-input: #16162a;
+      --bg-elevated: #1e1e38;
+      --text: #e8e8f0;
+      --text-dim: #a0a0b8;
+      --text-muted: #6b6b82;
+      --border: #22223a;
+      --border-focus: #6366f1;
+      --success: #22c55e;
+      --warning: #eab308;
+      --error: #ef4444;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    /* ── Base ── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+      transition: border-color 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    .card:hover { border-color: rgba(99,102,241,0.15); }
+    .card-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Textarea ── */
+    textarea {
+      background: var(--bg-input) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius-md) !important;
+      color: var(--text) !important;
+      font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', Consolas, monospace !important;
+      font-size: 0.82rem !important;
+      line-height: 1.7 !important;
+      padding: 0.7rem 0.85rem !important;
+      resize: vertical !important;
+      transition: border-color 0.2s, box-shadow 0.2s !important;
+      outline: none !important;
+      width: 100%;
+    }
+    textarea:focus {
+      border-color: var(--border-focus) !important;
+      box-shadow: 0 0 0 3px var(--primary-glow) !important;
+    }
+
+    /* ── Input ── */
+    input[type="text"], input[type="password"] {
+      background: var(--bg-input) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius-sm) !important;
+      color: var(--text) !important;
+      font-size: 0.8rem !important;
+      padding: 0.45rem 0.7rem !important;
+      transition: border-color 0.2s, box-shadow 0.2s !important;
+      outline: none !important;
+      width: 100%;
+    }
+    input:focus {
+      border-color: var(--border-focus) !important;
+      box-shadow: 0 0 0 3px var(--primary-glow) !important;
+    }
+
+    /* ── Select ── */
+    select {
+      background: var(--bg-input) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius-sm) !important;
+      color: var(--text) !important;
+      font-size: 0.78rem !important;
+      padding: 0.35rem 0.55rem !important;
+      cursor: pointer !important;
+      outline: none !important;
+      width: 100%;
+    }
+    select:focus {
+      border-color: var(--border-focus) !important;
+      box-shadow: 0 0 0 3px var(--primary-glow) !important;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #4f46e5) !important;
+      border: none !important;
+      border-radius: var(--radius-md) !important;
+      color: #fff !important;
+      font-weight: 600 !important;
+      font-size: 0.88rem !important;
+      padding: 0.55rem 1.2rem !important;
+      cursor: pointer !important;
+      transition: all 0.2s !important;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.25) !important;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 4px 16px rgba(99,102,241,0.35) !important;
+      transform: translateY(-1px) !important;
+      opacity: 0.92;
+    }
+    .btn-primary:active {
+      transform: translateY(0) !important;
+      box-shadow: 0 1px 4px rgba(99,102,241,0.2) !important;
+    }
+    .btn-primary:disabled {
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+    }
+
+    .btn-secondary {
+      background: transparent !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius-sm) !important;
+      color: var(--text-dim) !important;
+      font-size: 0.78rem !important;
+      padding: 0.35rem 0.85rem !important;
+      cursor: pointer !important;
+      transition: all 0.2s !important;
+      font-weight: 500 !important;
+    }
+    .btn-secondary:hover {
+      border-color: var(--primary) !important;
+      color: var(--primary-soft) !important;
+      background: rgba(99,102,241,0.06) !important;
+    }
+
+    .btn-chip {
+      background: rgba(99,102,241,0.06) !important;
+      border: 1px solid rgba(99,102,241,0.12) !important;
+      border-radius: var(--radius-sm) !important;
+      color: var(--text-dim) !important;
+      font-size: 0.72rem !important;
+      padding: 0.25rem 0.6rem !important;
+      cursor: pointer !important;
+      transition: all 0.2s !important;
+      white-space: nowrap !important;
+      font-weight: 450 !important;
+    }
+    .btn-chip:hover {
+      background: rgba(99,102,241,0.15) !important;
+      border-color: var(--primary) !important;
+      color: var(--text) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    /* ── Lang Switcher ── */
+    .lang-btn {
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: all 0.2s;
+      color: var(--text-muted);
+      font-weight: 450;
+      border: none;
+      background: transparent;
+    }
+    .lang-btn:hover { color: var(--text-dim); background: rgba(99,102,241,0.06); }
+    .lang-btn.active {
+      background: rgba(99,102,241,0.12) !important;
+      color: var(--primary-soft) !important;
+    }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.18rem 0.6rem; border-radius: 8px;
+      font-size: 0.7rem; font-weight: 500; white-space: nowrap; line-height: 1.5;
+    }
+    .badge-info {
+      background: rgba(99,102,241,0.1); color: #a5b4fc;
+      border: 1px solid rgba(99,102,241,0.18);
+    }
+    .badge-success {
+      background: rgba(34,197,94,0.08); color: #4ade80;
+      border: 1px solid rgba(34,197,94,0.15);
+    }
+    .badge-warning {
+      background: rgba(234,179,8,0.08); color: #facc15;
+      border: 1px solid rgba(234,179,8,0.15);
+    }
+    .badge-error {
+      background: rgba(239,68,68,0.08); color: #f87171;
+      border: 1px solid rgba(239,68,68,0.15);
+    }
+
+    /* ── Tab ── */
+    .tab-btn {
+      background: transparent; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text-dim);
+      font-size: 0.78rem; padding: 0.35rem 0.85rem;
+      cursor: pointer; transition: all 0.2s; font-weight: 500;
+    }
+    .tab-btn:hover {
+      border-color: var(--primary); color: var(--primary-soft);
+      background: rgba(99,102,241,0.06);
+    }
+    .tab-btn.active {
+      background: rgba(99,102,241,0.1); color: var(--primary-soft);
+      border-color: rgba(99,102,241,0.3);
+    }
+
+    /* ── Loading spinner ── */
+    .spinner {
+      width: 18px; height: 18px; border: 2px solid var(--border);
+      border-top-color: var(--primary); border-radius: 50%;
+      animation: spin 0.7s linear infinite; display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Fade in ── */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.25s ease-out; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      padding: 0.6rem 1.2rem; border-radius: var(--radius-md);
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      color: var(--text); font-size: 0.82rem; font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      opacity: 0; transform: translateY(10px); transition: all 0.3s;
+      pointer-events: none; z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Collapsible ── */
+    .collapsible-content {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease-out, opacity 0.2s;
+      opacity: 0;
+    }
+    .collapsible-content.open {
+      max-height: 300px; opacity: 1;
+    }
+
+    /* ── Accessibility ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- ===== Header ===== -->
+  <header class="relative text-center pt-10 pb-6 px-4" style="overflow:hidden">
+    <!-- Decorative glow -->
+    <div class="absolute top-[-120px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full pointer-events-none" style="background:radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 70%)"></div>
+
+    <h1 id="headerTitle" class="text-[1.65rem] font-bold tracking-tight mb-0.5" style="background:linear-gradient(135deg,#a78bfa 0%,#6366f1 50%,#818cf8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+      🪄 Prompt Rewrite System
+    </h1>
+    <p id="headerSubtitle" class="text-[0.85rem]" style="color:var(--text-muted)">Smart Prompt Optimization · Dynamic Workflows</p>
+
+    <div class="flex justify-center gap-2 mt-3">
+      <span id="badgeStrategies" class="badge badge-info text-[0.65rem]">✨ 7 Strategies</span>
+      <span id="badgeWorkflows" class="badge badge-info text-[0.65rem]">🔄 Dynamic Workflows</span>
+      <span id="badgeI18n" class="badge badge-info text-[0.65rem]">🌐 i18n Support</span>
+    </div>
+  </header>
+
+  <!-- ===== Language Switcher ===== -->
+  <div class="flex justify-center mb-6">
+    <div class="flex gap-0.5 p-0.5 rounded-[10px]" style="background:var(--bg-card);border:1px solid var(--border)">
+      <button class="lang-btn active" data-lang="en">English</button>
+      <button class="lang-btn" data-lang="zh">中文</button>
+      <button class="lang-btn" data-lang="ja">日本語</button>
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <main class="flex-1 w-full max-w-[1120px] mx-auto px-5 pb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+      <!-- ===== Left Column ===== -->
+      <div class="flex flex-col gap-4">
+
+        <!-- Input Card -->
+        <div class="card p-4">
+          <div class="card-label" id="inputLabel">📥 Input Prompt</div>
+          <textarea id="promptInput" rows="8" placeholder="Type or paste your prompt here..." style="min-height:180px"></textarea>
+
+          <!-- Example chips -->
+          <div class="flex flex-wrap gap-1.5 mt-3 mb-3" id="examplesContainer">
+            <span style="color:var(--text-muted);font-size:0.7rem;font-weight:600;margin-right:0.2rem">⚡ Try:</span>
+          </div>
+
+          <!-- Config Row -->
+          <div class="grid grid-cols-3 gap-2 mb-2">
+            <select id="presetSelect">
+              <option value="full">full (all strategies)</option>
+              <option value="basic">basic (role+structure+output)</option>
+              <option value="minimal">minimal (structure only)</option>
+            </select>
+            <select id="langSelect">
+              <option value="auto">auto</option>
+              <option value="zh">中文</option>
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+            </select>
+            <div class="flex items-center gap-2 text-[0.78rem]" style="color:var(--text-dim)">
+              <input type="checkbox" id="noCotCheck" class="w-3.5 h-3.5" style="accent-color:var(--primary)" />
+              <label for="noCotCheck" class="cursor-pointer select-none">🚫 Disable CoT</label>
+            </div>
+          </div>
+
+          <button id="rewriteBtn" class="btn-primary w-full flex items-center justify-center gap-2">
+            <span>🚀</span>
+            <span id="rewriteBtnText">Rewrite</span>
+          </button>
+        </div>
+
+        <!-- AI Enhancement Panel -->
+        <div class="card p-4">
+          <div class="card-label" style="margin-bottom:0.5rem">🤖 AI Enhancement <span style="font-weight:400;text-transform:none;color:var(--text-muted)">· DeepSeek</span></div>
+          <!-- API Key + Model row -->
+          <div class="flex gap-2 mt-1">
+            <input type="password" id="apiKeyInput" placeholder="sk-... (leave empty to disable AI)" style="flex:2" />
+            <select id="modelSelect" style="flex:1">
+              <option value="deepseek-v4-flash" selected>deepseek-v4-flash ⚡</option>
+              <option value="deepseek-v4-pro">deepseek-v4-pro 🧠</option>
+            </select>
+          </div>
+          <!-- Collapsible checkbox options -->
+          <div class="flex items-center justify-between mt-2 cursor-pointer select-none" id="aiOptionsToggle">
+            <span style="color:var(--text-muted);font-size:0.72rem;font-weight:500">Advanced options</span>
+            <span id="aiOptionsChevron" style="color:var(--text-muted);font-size:0.7rem;transition:transform 0.2s">▶</span>
+          </div>
+          <div class="collapsible-content" id="aiOptionsContent">
+            <div class="grid grid-cols-3 gap-2 mt-2">
+              <label class="flex items-center gap-1.5 text-[0.75rem]" style="color:var(--text-dim);cursor:pointer">
+                <input type="checkbox" id="enhanceAnalysisCb" class="w-3 h-3" style="accent-color:var(--primary)" />
+                <span id="enhanceAnalysisLabel">🔍 Enhance analysis</span>
+              </label>
+              <label class="flex items-center gap-1.5 text-[0.75rem]" style="color:var(--text-dim);cursor:pointer">
+                <input type="checkbox" id="enhanceRewriteCb" class="w-3 h-3" style="accent-color:var(--primary)" />
+                <span id="enhanceRewriteLabel">✍️ AI rewrite</span>
+              </label>
+              <label class="flex items-center gap-1.5 text-[0.75rem]" style="color:var(--text-dim);cursor:pointer">
+                <input type="checkbox" id="validateCb" class="w-3 h-3" style="accent-color:var(--primary)" />
+                <span id="validateLabel">✅ Validate quality</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Right Column ===== -->
+      <div class="flex flex-col gap-4">
+
+        <!-- Output Card -->
+        <div class="card p-4 flex-1 flex flex-col">
+          <div class="card-label" id="outputLabel">📤 Optimized Prompt</div>
+          <textarea id="outputText" rows="8" readonly placeholder="Result will appear here..." style="min-height:180px;flex:1" class="flex-1"></textarea>
+          <div class="flex gap-2 mt-3">
+            <button id="copyBtn" class="btn-secondary flex-1">📋 Copy</button>
+            <button id="clearBtn" class="btn-secondary flex-1">🗑️ Clear</button>
+          </div>
+        </div>
+
+        <!-- Results Card -->
+        <div class="card p-4">
+          <div class="card-label" id="resultsLabel">📊 Results</div>
+          <div class="flex gap-2 mb-3 flex-wrap">
+            <button class="tab-btn active" data-tab="analysis">🔍 Analysis</button>
+            <button class="tab-btn" data-tab="strategies">⚙️ Strategies</button>
+            <button class="tab-btn" data-tab="diff">📝 Changes</button>
+            <button class="tab-btn" data-tab="raw" id="rawTabBtn" style="display:none">📡 Raw</button>
+          </div>
+
+          <!-- Analysis Tab -->
+          <div id="tab-analysis" class="tab-content text-[0.8rem]" style="color:var(--text-muted)">
+            Run a rewrite to see analysis
+          </div>
+
+          <!-- Strategies Tab -->
+          <div id="tab-strategies" class="tab-content hidden text-[0.8rem]" style="color:var(--text-muted)">
+            No strategies applied
+          </div>
+
+          <!-- Diff Tab -->
+          <div id="tab-diff" class="tab-content hidden text-[0.8rem]" style="color:var(--text-muted)">
+            No changes
+          </div>
+
+          <!-- Raw API Response Tab -->
+          <div id="tab-raw" class="tab-content hidden text-[0.8rem]" style="color:var(--text-muted)">
+            <span style="color:var(--text-muted);font-size:0.8rem">No API data (AI enhancement not used)</span>
+          </div>
+
+          <!-- Error display -->
+          <div id="errorOutput" class="hidden mt-2 p-2 rounded-[6px] text-[0.78rem]" style="background:rgba(239,68,68,0.08);color:#f87171;border:1px solid rgba(239,68,68,0.15)"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="relative text-center py-5 px-4">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] h-px" style="background:linear-gradient(90deg,transparent,var(--border),transparent)"></div>
+    <span style="color:var(--text-muted);font-size:0.6rem;letter-spacing:0.04em" id="footerText">Prompt Rewrite System · Prompt Engineering Best Practices</span>
+  </footer>
+
+  <!-- ===== JavaScript ===== -->
+  <script>
+    // ── i18n ──
+    const LANG = {
+      en: {
+        title: 'Prompt Rewrite System',
+        headerTitle: '🪄 Prompt Rewrite System',
+        headerSubtitle: 'Smart Prompt Optimization · Dynamic Workflows',
+        badgeStrategies: '✨ 7 Strategies',
+        badgeWorkflows: '🔄 Dynamic Workflows',
+        badgeI18n: '🌐 i18n Support',
+        inputLabel: '📥 Input Prompt',
+        inputPlaceholder: 'Type or paste your prompt here...',
+        outputLabel: '📤 Optimized Prompt',
+        outputPlaceholder: 'Result will appear here...',
+        presetFull: 'full (all strategies)',
+        presetBasic: 'basic (role+structure+output)',
+        presetMinimal: 'minimal (structure only)',
+        noCotLabel: '🚫 Disable CoT',
+        rewriteBtn: 'Rewrite',
+        copyBtn: '📋 Copy',
+        clearBtn: '🗑️ Clear',
+        resultsLabel: '📊 Results',
+        tabAnalysis: '🔍 Analysis',
+        tabStrategies: '⚙️ Strategies',
+        tabDiff: '📝 Changes',
+        analysisEmpty: 'Run a rewrite to see analysis',
+        noStrategies: 'No strategies applied',
+        noChanges: 'No changes',
+        aiPanelTitle: '🤖 AI Enhancement',
+        aiPanelSub: '· DeepSeek',
+        apiKeyPlaceholder: 'sk-... (leave empty to disable)',
+        enhanceAnalysis: '🔍 Enhance analysis',
+        enhanceRewrite: '✍️ AI rewrite',
+        validateLabel: '✅ Validate quality',
+        footer: 'Prompt Rewrite System · Prompt Engineering Best Practices',
+        examples: [
+          'Write a Python function to sort a list of dicts by a key',
+          'Explain recursion to a beginner',
+          'Compare microservices vs monolithic architecture',
+          'Brainstorm 5 startup ideas for AI in healthcare',
+        ],
+        langOptions: ['auto', '中文', 'English', '日本語'],
+        langValues: ['auto', 'zh', 'en', 'ja'],
+      },
+      zh: {
+        title: 'Prompt Rewrite System',
+        headerTitle: '🪄 Prompt Rewrite System',
+        headerSubtitle: '智能 Prompt 优化 · Dynamic Workflows',
+        badgeStrategies: '✨ 7 种策略',
+        badgeWorkflows: '🔄 动态工作流',
+        badgeI18n: '🌐 多语言支持',
+        inputLabel: '📥 原始 Prompt',
+        inputPlaceholder: '在此输入 prompt...',
+        outputLabel: '📤 优化后 Prompt',
+        outputPlaceholder: '优化结果将显示在此...',
+        presetFull: '完整（全部策略）',
+        presetBasic: '基础（角色+结构+格式）',
+        presetMinimal: '最简（仅结构化）',
+        noCotLabel: '🚫 禁用 CoT 推理',
+        rewriteBtn: '重写',
+        copyBtn: '📋 复制',
+        clearBtn: '🗑️ 清空',
+        resultsLabel: '📊 结果',
+        tabAnalysis: '🔍 分析',
+        tabStrategies: '⚙️ 策略',
+        tabDiff: '📝 变更',
+        analysisEmpty: '重写后查看分析结果',
+        noStrategies: '未应用策略',
+        noChanges: '无变更',
+        aiPanelTitle: '🤖 AI 增强',
+        aiPanelSub: '· DeepSeek',
+        apiKeyPlaceholder: 'sk-...（留空则禁用）',
+        enhanceAnalysis: '🔍 增强分析',
+        enhanceRewrite: '✍️ AI 重写',
+        validateLabel: '✅ 质量验证',
+        footer: 'Prompt Rewrite System · Prompt Engineering 最佳实践',
+        examples: [
+          '写一个 Python 函数按 key 排序字典列表',
+          '向初学者解释递归的概念',
+          '比较微服务与单体架构的优缺点',
+          '为 AI 医疗领域 brainstorm 5 个创业想法',
+        ],
+        langOptions: ['auto', '中文', 'English', '日本語'],
+        langValues: ['auto', 'zh', 'en', 'ja'],
+      },
+      ja: {
+        title: 'Prompt Rewrite System',
+        headerTitle: '🪄 Prompt Rewrite System',
+        headerSubtitle: 'スマートプロンプト最適化 · Dynamic Workflows',
+        badgeStrategies: '✨ 7 ストラテジ',
+        badgeWorkflows: '🔄 動的ワークフロー',
+        badgeI18n: '🌐 多言語対応',
+        inputLabel: '📥 入力プロンプト',
+        inputPlaceholder: 'プロンプトを入力...',
+        outputLabel: '📤 最適化後プロンプト',
+        outputPlaceholder: '結果がここに表示されます...',
+        presetFull: 'フル（全ストラテジ）',
+        presetBasic: 'ベーシック（役割+構造+出力）',
+        presetMinimal: 'ミニマル（構造のみ）',
+        noCotLabel: '🚫 CoT 推論を無効化',
+        rewriteBtn: '書き換え',
+        copyBtn: '📋 コピー',
+        clearBtn: '🗑️ クリア',
+        resultsLabel: '📊 結果',
+        tabAnalysis: '🔍 分析',
+        tabStrategies: '⚙️ 戦略',
+        tabDiff: '📝 差分',
+        analysisEmpty: '書き換えを実行すると分析が表示されます',
+        noStrategies: '適用された戦略はありません',
+        noChanges: '変更なし',
+        aiPanelTitle: '🤖 AI 拡張',
+        aiPanelSub: '· DeepSeek',
+        apiKeyPlaceholder: 'sk-...（空欄で無効）',
+        enhanceAnalysis: '🔍 分析拡張',
+        enhanceRewrite: '✍️ AI 書き換え',
+        validateLabel: '✅ 品質検証',
+        footer: 'Prompt Rewrite System · プロンプトエンジニアリングベストプラクティス',
+        examples: [
+          'Python関数でdictリストをキーでソートする',
+          '初心者に再帰を説明する',
+          'マイクロサービスとモノリスの比較',
+          'AIヘルスケアのスタートアップアイデア5つ',
+        ],
+        langOptions: ['auto', '中文', 'English', '日本語'],
+        langValues: ['auto', 'zh', 'en', 'ja'],
+      }
+    };
+
+    const PRESET_MAP = {
+      'full (all strategies)': 'full',
+      'basic (role+structure+output)': 'basic',
+      'minimal (structure only)': 'minimal',
+      '完整（全部策略）': 'full',
+      '基础（角色+结构+格式）': 'basic',
+      '最简（仅结构化）': 'minimal',
+      'フル（全ストラテジ）': 'full',
+      'ベーシック（役割+構造+出力）': 'basic',
+      'ミニマル（構造のみ）': 'minimal',
+    };
+
+    // ── State ──
+    let currentLang = 'en';
+    let isRewriting = false;
+
+    // ── DOM refs ──
+    const $ = id => document.getElementById(id);
+    const promptInput = $('promptInput');
+    const outputText = $('outputText');
+    const rewriteBtn = $('rewriteBtn');
+    const rewriteBtnText = $('rewriteBtnText');
+    const copyBtn = $('copyBtn');
+    const clearBtn = $('clearBtn');
+    const presetSelect = $('presetSelect');
+    const langSelect = $('langSelect');
+    const noCotCheck = $('noCotCheck');
+    const apiKeyInput = $('apiKeyInput');
+    const enhanceAnalysisCb = $('enhanceAnalysisCb');
+    const enhanceRewriteCb = $('enhanceRewriteCb');
+    const validateCb = $('validateCb');
+    const examplesContainer = $('examplesContainer');
+    const errorOutput = $('errorOutput');
+    const toast = $('toast');
+
+    // ── Apply language ──
+    function applyLang(code) {
+      const t = LANG[code];
+      if (!t) return;
+      currentLang = code;
+
+      // Title & header
+      document.title = t.title;
+      $('headerTitle').textContent = t.headerTitle;
+      $('headerSubtitle').textContent = t.headerSubtitle;
+      $('badgeStrategies').textContent = t.badgeStrategies;
+      $('badgeWorkflows').textContent = t.badgeWorkflows;
+      $('badgeI18n').textContent = t.badgeI18n;
+
+      // Input / Output
+      $('inputLabel').textContent = t.inputLabel;
+      promptInput.placeholder = t.inputPlaceholder;
+      $('outputLabel').textContent = t.outputLabel;
+      outputText.placeholder = t.outputPlaceholder;
+
+      // Preset dropdown — preserve selected value
+      const savedPreset = presetSelect.value;
+      presetSelect.innerHTML = '';
+      [t.presetFull, t.presetBasic, t.presetMinimal].forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = PRESET_MAP[p] || p;
+        opt.textContent = p;
+        presetSelect.appendChild(opt);
+      });
+      // restore the previously selected preset value
+      if (savedPreset) {
+        const opts = [...presetSelect.options];
+        const match = opts.find(o => o.value === savedPreset);
+        if (match) match.selected = true;
+      }
+
+      // Lang dropdown
+      langSelect.innerHTML = '';
+      t.langOptions.forEach((label, i) => {
+        const opt = document.createElement('option');
+        opt.value = t.langValues[i];
+        opt.textContent = label;
+        langSelect.appendChild(opt);
+      });
+
+      // Checkbox + buttons
+      noCotCheck.parentElement.querySelector('label').textContent = t.noCotLabel;
+      rewriteBtnText.textContent = t.rewriteBtn;
+      copyBtn.textContent = t.copyBtn;
+      clearBtn.textContent = t.clearBtn;
+      $('resultsLabel').textContent = t.resultsLabel;
+
+      // AI Panel
+      apiKeyInput.placeholder = t.apiKeyPlaceholder;
+      $('enhanceAnalysisLabel').textContent = t.enhanceAnalysis;
+      $('enhanceRewriteLabel').textContent = t.enhanceRewrite;
+      $('validateLabel').textContent = t.validateLabel;
+
+      // Tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const tab = btn.dataset.tab;
+        if (tab === 'analysis') btn.textContent = t.tabAnalysis;
+        else if (tab === 'strategies') btn.textContent = t.tabStrategies;
+        else if (tab === 'diff') btn.textContent = t.tabDiff;
+        else if (tab === 'raw') btn.textContent = '📡 Raw';
+      });
+
+      // Tab content — always refresh on language switch
+      const activeTab = document.querySelector('.tab-btn.active');
+      if (!activeTab) {
+        document.querySelector('[data-tab="analysis"]')?.classList.add('active');
+      }
+      const tabName = activeTab ? activeTab.dataset.tab : 'analysis';
+      refreshTabContent(tabName, code);
+
+      $('footerText').textContent = t.footer;
+
+      // Examples
+      renderExamples(t.examples);
+
+      // Lang switcher buttons
+      document.querySelectorAll('.lang-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.lang === code);
+      });
+    }
+
+    function refreshTabContent(activeTab, code) {
+      const t = LANG[code];
+      const map = { analysis: t.analysisEmpty, strategies: t.noStrategies, diff: t.noChanges, raw: 'No API data' };
+      document.querySelectorAll('.tab-content').forEach(el => {
+        const tab = el.id.replace('tab-', '');
+        const isActive = tab === activeTab;
+        el.classList.toggle('hidden', !isActive);
+        // Update placeholder text on language switch, but skip tabs with actual rewrite data
+        if (isActive && !el.dataset.populated) {
+          el.innerHTML = `<span style="color:var(--text-muted);font-size:0.8rem">${map[tab] || ''}</span>`;
+        }
+      });
+    }
+
+    function renderExamples(examples) {
+      examplesContainer.innerHTML = '<span style="color:var(--text-muted);font-size:0.7rem;font-weight:600;margin-right:0.2rem">⚡ Try:</span>';
+      examples.forEach(ex => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-chip';
+        btn.textContent = ex;
+        btn.addEventListener('click', () => { promptInput.value = ex; });
+        examplesContainer.appendChild(btn);
+      });
+    }
+
+    // ── Lang switch handlers ──
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => applyLang(btn.dataset.lang));
+    });
+
+    // ── AI options toggle ──
+    $('aiOptionsToggle').addEventListener('click', () => {
+      const content = $('aiOptionsContent');
+      const chevron = $('aiOptionsChevron');
+      content.classList.toggle('open');
+      chevron.style.transform = content.classList.contains('open') ? 'rotate(90deg)' : '';
+    });
+
+    // ── Tabs ──
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        const tabEl = $('tab-' + btn.dataset.tab);
+        if (tabEl) {
+          tabEl.classList.remove('hidden');
+          if (!tabEl.dataset.populated && !tabEl.querySelector('.badge')) {
+            const t = LANG[currentLang];
+            const map = { analysis: t.analysisEmpty, strategies: t.noStrategies, diff: t.noChanges, raw: 'No API data' };
+            tabEl.innerHTML = `<span style="color:var(--text-muted);font-size:0.8rem">${map[btn.dataset.tab] || ''}</span>`;
+          }
+        }
+      });
+    });
+
+    // ── Toast ──
+    function showToast(msg, type = 'info') {
+      toast.textContent = msg;
+      toast.className = 'toast show';
+      const colors = {
+        info: 'var(--bg-elevated)',
+        success: 'rgba(34,197,94,0.1)',
+        error: 'rgba(239,68,68,0.1)',
+      };
+      toast.style.background = colors[type] || colors.info;
+      toast.style.borderColor = type === 'success' ? 'rgba(34,197,94,0.2)' : type === 'error' ? 'rgba(239,68,68,0.2)' : 'var(--border)';
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // ── Copy ──
+    copyBtn.addEventListener('click', async () => {
+      const text = outputText.value;
+      if (!text) { showToast('Nothing to copy', 'error'); return; }
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Copied to clipboard!', 'success');
+      } catch {
+        // fallback
+        outputText.select();
+        document.execCommand('copy');
+        showToast('Copied!', 'success');
+      }
+    });
+
+    // ── Clear ──
+    clearBtn.addEventListener('click', () => {
+      promptInput.value = '';
+      outputText.value = '';
+      errorOutput.classList.add('hidden');
+      // Reset tab content
+      document.querySelectorAll('.tab-content').forEach(el => {
+        el.dataset.populated = '';
+        const tab = el.id.replace('tab-', '');
+        const t = LANG[currentLang];
+        const map = { analysis: t.analysisEmpty, strategies: t.noStrategies, diff: t.noChanges, raw: 'No API data' };
+        el.innerHTML = `<span style="color:var(--text-muted);font-size:0.8rem">${map[tab] || ''}</span>`;
+      });
+      $('rawTabBtn').style.display = 'none';
+    });
+
+    // ── Build result HTML from API response data ──
+    function buildAnalysisHTML(a) {
+      const cat = a.category;
+      const cmp = a.complexity;
+      const domains = (a.domains || []).map(d => `<span class="badge badge-info" style="font-size:0.7rem">#${d}</span>`).join(' ');
+      return `<div class="flex flex-wrap gap-2" style="padding:0.25rem 0">
+<span class="badge badge-info">${cat.icon} ${cat.label.toUpperCase()}</span>
+<span class="badge badge-info">${cmp.icon} ${cmp.label.toUpperCase()}</span>
+<span class="badge badge-info">🌐 ${(a.language || 'en').toUpperCase()}</span>
+<span class="badge badge-info">📏 ${a.estimated_tokens || 0} tok</span>
+<span class="badge badge-info">${a.has_code ? '✅ code' : '— code'}</span>
+<span class="badge badge-info">${a.has_examples ? '✅ examples' : '— examples'}</span>
+${domains}</div>`;
+    }
+
+    function buildStrategiesHTML(strategies) {
+      if (!strategies || strategies.length === 0) {
+        return `<span style="color:var(--text-muted);font-size:0.8rem">${LANG[currentLang].noStrategies}</span>`;
+      }
+      return '<div class="flex flex-wrap gap-2" style="padding:0.25rem 0">' +
+        strategies.map(s =>
+          `<span class="badge badge-success">${s.icon || '🔧'} ${s.label || s.name}</span>`
+        ).join('') + '</div>';
+    }
+
+    function buildDiffHTML(diff) {
+      if (!diff) {
+        return `<span style="color:var(--text-muted);font-size:0.8rem">${LANG[currentLang].noChanges}</span>`;
+      }
+      const added = diff.added || 0;
+      const removed = diff.removed || 0;
+      const before = diff.chars_before || 0;
+      const after = diff.chars_after || 0;
+      return `<div class="flex gap-3 mb-1" style="color:var(--text-muted);font-size:0.75rem">
+<span>📐 ${before} → ${after} chars</span>
+<span style="color:var(--success)">+${added}</span>
+<span style="color:#ef4444">-${removed}</span></div>`;
+    }
+
+    // ── Rewrite API call ──
+    async function doRewrite() {
+      const t = LANG[currentLang];
+      const prompt = promptInput.value.trim();
+      if (!prompt) { showToast(t.analysisEmpty || 'Please enter a prompt', 'error'); return; }
+
+      if (isRewriting) return;
+      isRewriting = true;
+      rewriteBtn.disabled = true;
+      rewriteBtnText.textContent = '⏳ Rewriting...';
+      rewriteBtn.querySelector('span:first-child').textContent = '';
+
+      try {
+        const resp = await fetch('/api/rewrite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt,
+            preset: presetSelect.value,
+            no_cot: noCotCheck.checked,
+            lang: langSelect.value,
+            api_key: apiKeyInput.value || '',
+            model: modelSelect.value,
+            enhance_analysis: enhanceAnalysisCb.checked,
+            enhance_rewrite: enhanceRewriteCb.checked,
+            validate: validateCb.checked,
+          }),
+        });
+
+        const data = await resp.json();
+        if (data.error) {
+          showToast(data.error, 'error');
+          errorOutput.textContent = '❌ ' + data.error;
+          errorOutput.classList.remove('hidden');
+          return;
+        }
+
+        outputText.value = data.rewritten || '';
+
+        // Mode indicator
+        const hasKey = apiKeyInput.value.trim().length > 0;
+        const aiOn = [];
+        if (hasKey && enhanceAnalysisCb.checked) aiOn.push('🔍Analysis');
+        if (hasKey && enhanceRewriteCb.checked) aiOn.push('✍️Rewrite');
+        if (hasKey && validateCb.checked) aiOn.push('✅Validate');
+        const llmModel = modelSelect.value;
+        const modeTag = aiOn.length > 0
+          ? `<span class="badge badge-success" style="font-size:0.7rem;margin-bottom:0.4rem;display:inline-block">🤖 AI: ${aiOn.join(' ')} · ${llmModel}</span><br>`
+          : `<span class="badge badge-info" style="font-size:0.7rem;margin-bottom:0.4rem;display:inline-block">📐 Rules Only</span><br>`;
+
+        // Build and populate tabs from structured data
+        const analysisEl = $('tab-analysis');
+        analysisEl.innerHTML = modeTag + buildAnalysisHTML(data.analysis);
+        analysisEl.dataset.populated = '1';
+
+        const stratEl = $('tab-strategies');
+        stratEl.innerHTML = modeTag + buildStrategiesHTML(data.strategies);
+        stratEl.dataset.populated = '1';
+
+        const diffEl = $('tab-diff');
+        diffEl.innerHTML = modeTag + buildDiffHTML(data.diff);
+        diffEl.dataset.populated = '1';
+
+        // Raw data tab
+        const rawEl = $('tab-raw');
+        const rawTabBtn = $('rawTabBtn');
+        if (data.llm_raw && data.llm_raw.raw_preview) {
+          rawTabBtn.style.display = '';
+          const usage = data.llm_raw.usage || {};
+          const rawHtml = `<div style="padding:0.25rem 0">
+  <div class="flex flex-wrap gap-2" style="margin-bottom:0.5rem">
+    <span class="badge badge-info">🤖 ${data.llm_raw.model || llmModel}</span>
+    <span class="badge badge-info">📥 ${usage.prompt_tokens || '?'} tok</span>
+    <span class="badge badge-info">📤 ${usage.completion_tokens || '?'} tok</span>
+    <span class="badge badge-info">📊 ${usage.total_tokens || '?'} total</span>
+    <span class="badge badge-info">🏁 ${data.llm_raw.finish_reason || '?'}</span>
+  </div>
+  <pre style="background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:0.6rem;font-size:0.7rem;color:var(--text-dim);max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin:0">${modeTag}${data.llm_raw.raw_preview.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre></div>`;
+          rawEl.innerHTML = rawHtml;
+          rawEl.dataset.populated = '1';
+        } else {
+          rawTabBtn.style.display = 'none';
+          rawEl.innerHTML = '<span style="color:var(--text-muted);font-size:0.8rem">No API data (AI enhancement not used or request failed)</span>';
+          rawEl.dataset.populated = '';
+        }
+
+        errorOutput.classList.add('hidden');
+        showToast('Rewrite complete!', 'success');
+
+      } catch (err) {
+        showToast('Request failed: ' + err.message, 'error');
+        errorOutput.textContent = '❌ Network error: ' + err.message;
+        errorOutput.classList.remove('hidden');
+      } finally {
+        isRewriting = false;
+        rewriteBtn.disabled = false;
+        rewriteBtnText.textContent = LANG[currentLang].rewriteBtn;
+        rewriteBtn.querySelector('span:first-child').textContent = '🚀';
+      }
+    }
+
+    rewriteBtn.addEventListener('click', doRewrite);
+    promptInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && e.ctrlKey) doRewrite();
+    });
+
+    // ── Init ──
+    applyLang('en');
+  </script>
+</body>
+</html>
