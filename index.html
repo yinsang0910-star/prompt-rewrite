@@ -358,7 +358,7 @@
         <!-- AI Enhancement Panel -->
         <div class="card p-4">
           <div class="card-label" style="margin-bottom:0.5rem">🤖 AI Enhancement <span style="font-weight:400;text-transform:none;color:var(--text-muted)">· DeepSeek</span></div>
-          <!-- API Key + Model row -->
+          <!-- API Key + Model + Remember row -->
           <div class="flex gap-2 mt-1">
             <input type="password" id="apiKeyInput" placeholder="sk-... (leave empty to disable AI)" style="flex:2" />
             <select id="modelSelect" style="flex:1">
@@ -366,26 +366,24 @@
               <option value="deepseek-v4-pro">deepseek-v4-pro 🧠</option>
             </select>
           </div>
-          <!-- Collapsible checkbox options -->
-          <div class="flex items-center justify-between mt-2 cursor-pointer select-none" id="aiOptionsToggle">
-            <span style="color:var(--text-muted);font-size:0.72rem;font-weight:500">Advanced options</span>
-            <span id="aiOptionsChevron" style="color:var(--text-muted);font-size:0.7rem;transition:transform 0.2s">▶</span>
+          <div class="flex items-center gap-1.5 mt-1.5" style="color:var(--text-dim);font-size:0.72rem">
+            <input type="checkbox" id="rememberKeyCb" class="w-3 h-3" style="accent-color:var(--primary)" />
+            <label for="rememberKeyCb" class="cursor-pointer select-none" style="color:var(--text-dim);font-size:0.72rem">💾 Remember API key</label>
           </div>
-          <div class="collapsible-content" id="aiOptionsContent">
-            <div class="grid grid-cols-3 gap-2 mt-2">
-              <label class="flex items-center gap-1.5 text-[0.75rem]" style="color:var(--text-dim);cursor:pointer">
-                <input type="checkbox" id="enhanceAnalysisCb" class="w-3 h-3" style="accent-color:var(--primary)" />
-                <span id="enhanceAnalysisLabel">🔍 Enhance analysis</span>
-              </label>
-              <label class="flex items-center gap-1.5 text-[0.75rem]" style="color:var(--text-dim);cursor:pointer">
-                <input type="checkbox" id="enhanceRewriteCb" class="w-3 h-3" style="accent-color:var(--primary)" />
-                <span id="enhanceRewriteLabel">✍️ AI rewrite</span>
-              </label>
-              <label class="flex items-center gap-1.5 text-[0.75rem]" style="color:var(--text-dim);cursor:pointer">
-                <input type="checkbox" id="validateCb" class="w-3 h-3" style="accent-color:var(--primary)" />
-                <span id="validateLabel">✅ Validate quality</span>
-              </label>
-            </div>
+          <!-- Checkbox options (always visible) -->
+          <div class="grid grid-cols-3 gap-2 mt-2">
+            <label class="flex items-center gap-1.5 text-[0.75rem]" style="color:var(--text-dim);cursor:pointer">
+              <input type="checkbox" id="enhanceAnalysisCb" class="w-3 h-3" style="accent-color:var(--primary)" />
+              <span id="enhanceAnalysisLabel">🔍 Enhance analysis</span>
+            </label>
+            <label class="flex items-center gap-1.5 text-[0.75rem]" style="color:var(--text-dim);cursor:pointer">
+              <input type="checkbox" id="enhanceRewriteCb" class="w-3 h-3" style="accent-color:var(--primary)" />
+              <span id="enhanceRewriteLabel">✍️ AI rewrite</span>
+            </label>
+            <label class="flex items-center gap-1.5 text-[0.75rem]" style="color:var(--text-dim);cursor:pointer">
+              <input type="checkbox" id="validateCb" class="w-3 h-3" style="accent-color:var(--primary)" />
+              <span id="validateLabel">✅ Validate quality</span>
+            </label>
           </div>
         </div>
       </div>
@@ -726,12 +724,27 @@
       btn.addEventListener('click', () => applyLang(btn.dataset.lang));
     });
 
-    // ── AI options toggle ──
-    $('aiOptionsToggle').addEventListener('click', () => {
-      const content = $('aiOptionsContent');
-      const chevron = $('aiOptionsChevron');
-      content.classList.toggle('open');
-      chevron.style.transform = content.classList.contains('open') ? 'rotate(90deg)' : '';
+    // ── Remember API key (localStorage) ──
+    $('rememberKeyCb').addEventListener('change', () => {
+      if ($('rememberKeyCb').checked) {
+        localStorage.setItem('prs_api_key', apiKeyInput.value);
+        localStorage.setItem('prs_model', modelSelect.value);
+        localStorage.setItem('prs_remember', '1');
+      } else {
+        localStorage.removeItem('prs_api_key');
+        localStorage.removeItem('prs_model');
+        localStorage.removeItem('prs_remember');
+      }
+    });
+    apiKeyInput.addEventListener('input', () => {
+      if ($('rememberKeyCb').checked) {
+        localStorage.setItem('prs_api_key', apiKeyInput.value);
+      }
+    });
+    modelSelect.addEventListener('change', () => {
+      if ($('rememberKeyCb').checked) {
+        localStorage.setItem('prs_model', modelSelect.value);
+      }
     });
 
     // ── Tabs ──
@@ -952,6 +965,14 @@ ${domains}</div>`;
     });
 
     // ── Init ──
+    // Load saved API key from localStorage
+    if (localStorage.getItem('prs_remember') === '1') {
+      const saved = localStorage.getItem('prs_api_key');
+      if (saved) apiKeyInput.value = saved;
+      const savedModel = localStorage.getItem('prs_model');
+      if (savedModel) modelSelect.value = savedModel;
+      $('rememberKeyCb').checked = true;
+    }
     applyLang('en');
   </script>
 </body>
