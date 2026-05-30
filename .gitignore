@@ -31,4 +31,3 @@ PromptRewrite-v0.2.0-portable/
 PromptRewrite.spec
 PromptRewrite.exe
 dist/
-scripts/start.sh
