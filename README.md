@@ -1,6 +1,18 @@
 # Prompt Rewrite System (PRS)
 
-> **基于 Prompt Engineering 最佳实践的 Prompt 重写引擎**
+> **Prompt Rewrite Engine — with AI Enhancement**
+
+## 🚀 Quick Start
+
+| System | How to start |
+|--------|-------------|
+| **Windows** | Double-click `start.bat` |
+| **macOS** | Run `bash start.sh` in Terminal |
+| **Both** | Or: `pip install -r requirements.txt && python launch_ui.py` |
+
+Then open `http://localhost:8000` (or the browser opens automatically).
+
+> For AI rewrite features, get a free API key at [platform.deepseek.com](https://platform.deepseek.com)
 
 ## 概述
 
