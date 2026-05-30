@@ -214,61 +214,19 @@ async def api_rewrite(req: Request):
 def main():
     port = int(os.environ.get("PORT", 8000))
     host = os.environ.get("HOST", "0.0.0.0")
-
-    # Ensure UTF-8 output (required for PyInstaller on Windows)
-    try:
-        sys.stdout.reconfigure(encoding='utf-8')
-    except Exception:
-        pass
-
-    banner = (
-        "=======================================================\n"
-        "  Prompt Rewrite System\n"
-        "  Smart Prompt Optimization\n"
-        "=======================================================\n"
-        "\n"
-        f"  Open: http://localhost:{port}\n"
-        "\n"
-        "  Ctrl+C to stop\n"
-        "======================================================="
-    )
-    try:
-        print(banner)
-    except UnicodeEncodeError:
-        print(banner.encode('ascii', errors='replace').decode('ascii'))
-    sys.stdout.flush()
-
-    # Auto-open browser after server starts
     url = f"http://localhost:{port}"
+
+    # Auto-open browser
     def _open_browser():
         import time
         time.sleep(1.5)
         try:
-            if sys.platform == "win32":
-                os.startfile(url)
-            else:
-                import webbrowser
-                webbrowser.open(url)
-        except Exception:
-            pass  # never crash the server just because browser won't open
-    threading.Thread(target=_open_browser, daemon=True).start()
-
-    try:
-        uvicorn.run(
-            app,
-            host=host,
-            port=port,
-            log_level="warning",
-        )
-    except KeyboardInterrupt:
-        print("\nShutting down...")
-    except Exception as e:
-        print(f"\nERROR: {e}")
-        print("\nPress Enter to exit...", end="")
-        try:
-            input()
+            os.startfile(url)
         except Exception:
             pass
+    threading.Thread(target=_open_browser, daemon=True).start()
+
+    uvicorn.run(app, host=host, port=port, log_level="warning")
 
 
 if __name__ == "__main__":
