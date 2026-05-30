@@ -28,8 +28,12 @@ from prompt_rewrite.core.types import StrategyName, LLMConfig
 app = FastAPI(title="Prompt Rewrite System")
 
 # ── Serve the index.html ──
-HERE = Path(__file__).parent
-INDEX_HTML = HERE / "index.html"
+# Support both source tree and PyInstaller bundle
+if getattr(sys, 'frozen', False):
+    _BASE = Path(sys._MEIPASS)
+else:
+    _BASE = Path(__file__).parent
+INDEX_HTML = _BASE / "index.html"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -210,15 +214,27 @@ def main():
     port = int(os.environ.get("PORT", 8000))
     host = os.environ.get("HOST", "0.0.0.0")
 
-    print("=" * 55)
-    print("  🪄  Prompt Rewrite System")
-    print("  基于 Prompt Engineering 最佳实践")
-    print("=" * 55)
-    print()
-    print(f"  🌐  浏览器打开: http://localhost:{port}")
-    print()
-    print("  Ctrl+C 停止服务")
-    print("=" * 55)
+    # Ensure UTF-8 output (required for PyInstaller on Windows)
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
+    banner = (
+        "=======================================================\n"
+        "  Prompt Rewrite System\n"
+        "  Smart Prompt Optimization\n"
+        "=======================================================\n"
+        "\n"
+        f"  Open: http://localhost:{port}\n"
+        "\n"
+        "  Ctrl+C to stop\n"
+        "======================================================="
+    )
+    try:
+        print(banner)
+    except UnicodeEncodeError:
+        print(banner.encode('ascii', errors='replace').decode('ascii'))
     sys.stdout.flush()
 
     uvicorn.run(

@@ -22,3 +22,7 @@ Thumbs.db
 *.log
 .env
 .reasonix/
+*.zip
+*.spec
+build/
+dist/
