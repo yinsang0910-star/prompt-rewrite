@@ -179,14 +179,14 @@ class RewritePipeline:
             self._last_llm_raw = None
 
         # Determine the real error
-        if rewriter.last_error:
-            base._llm_error = rewriter.last_error
-        elif llm_rewritten == original:
-            base._llm_error = "LLM returned identical content (may have failed silently)"
-        elif llm_rewritten.startswith("[LLM"):
-            base._llm_error = llm_rewritten
+        error = rewriter.last_error or ""
+        if not error and llm_rewritten == original:
+            error = "LLM returned identical content (may have failed silently)"
+        elif not error and llm_rewritten.startswith("[LLM"):
+            error = llm_rewritten
+        base._llm_error = error
         
-        if base._llm_error:
+        if error:
             return base  # LLM 失败
 
         return RewriteResult(
