@@ -9,6 +9,8 @@ import sys
 import os
 import json
 import dataclasses
+import webbrowser
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -237,12 +239,27 @@ def main():
         print(banner.encode('ascii', errors='replace').decode('ascii'))
     sys.stdout.flush()
 
-    uvicorn.run(
-        app,
-        host=host,
-        port=port,
-        log_level="warning",
-    )
+    # Auto-open browser after 1.5s
+    url = f"http://localhost:{port}"
+    def _open_browser():
+        import time
+        time.sleep(1.5)
+        webbrowser.open(url)
+    threading.Thread(target=_open_browser, daemon=True).start()
+
+    try:
+        uvicorn.run(
+            app,
+            host=host,
+            port=port,
+            log_level="warning",
+        )
+    except KeyboardInterrupt:
+        print("\nShutting down...")
+    except Exception as e:
+        print(f"\nERROR: {e}")
+        print("\nPress Enter to exit...")
+        input()
 
 
 if __name__ == "__main__":
