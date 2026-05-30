@@ -179,6 +179,7 @@ class RewritePipeline:
             self._last_llm_raw = None
 
         if llm_rewritten == original or llm_rewritten.startswith("[LLM"):
+            base._llm_error = llm_rewritten if llm_rewritten.startswith("[LLM") else "LLM returned identical content"
             return base  # LLM 没改动或失败
 
         return RewriteResult(

@@ -362,8 +362,8 @@
           <div class="flex gap-2 mt-1">
             <input type="password" id="apiKeyInput" placeholder="sk-... (leave empty to disable AI)" style="flex:2" />
             <select id="modelSelect" style="flex:1">
-              <option value="deepseek-v4-flash" selected>deepseek-v4-flash ⚡</option>
-              <option value="deepseek-v4-pro">deepseek-v4-pro 🧠</option>
+              <option value="deepseek-chat" selected>deepseek-chat ⚡</option>
+              <option value="deepseek-reasoner">deepseek-reasoner 🧠</option>
             </select>
           </div>
           <!-- Collapsible checkbox options -->
@@ -857,6 +857,7 @@ ${domains}</div>`;
             preset: presetSelect.value,
             no_cot: noCotCheck.checked,
             lang: langSelect.value,
+            language: langSelect.value,
             api_key: apiKeyInput.value || '',
             model: modelSelect.value,
             enhance_analysis: enhanceAnalysisCb.checked,
@@ -874,6 +875,14 @@ ${domains}</div>`;
         }
 
         outputText.value = data.rewritten || '';
+
+        // Show LLM error/warning if present
+        if (data.llm_error) {
+          errorOutput.textContent = '⚠️ LLM: ' + data.llm_error.replace('[LLM','').replace(/[\\[\\]]/g,'').trim();
+          errorOutput.classList.remove('hidden');
+        } else {
+          errorOutput.classList.add('hidden');
+        }
 
         // Mode indicator
         const hasKey = apiKeyInput.value.trim().length > 0;

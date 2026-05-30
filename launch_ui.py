@@ -121,7 +121,7 @@ async def api_rewrite(req: Request):
     language = body.get("language", "auto")
     no_cot = body.get("no_cot", False)
     api_key = body.get("api_key", "")
-    model = body.get("model", "deepseek-v4-flash")
+    model = body.get("model", "deepseek-chat")
     enhance_analysis = body.get("enhance_analysis", False)
     enhance_rewrite = body.get("enhance_rewrite", False)
     validate = body.get("validate", False)
@@ -179,10 +179,11 @@ async def api_rewrite(req: Request):
         added = sum(1 for l in new_lines if l not in orig_lines)
         removed = sum(1 for l in orig_lines if l not in new_lines)
 
-        # Grab LLM raw response if available
+        # Grab LLM raw response and errors if available
         llm_raw = getattr(pipeline, "last_llm_raw_response", None)
         if llm_raw:
             llm_raw["model_used"] = model
+        llm_error = getattr(result, "_llm_error", None)
 
         return {
             "original": result.original,
@@ -197,6 +198,7 @@ async def api_rewrite(req: Request):
                 "chars_after": len(result.rewritten),
             },
             "llm_raw": llm_raw,
+            "llm_error": llm_error,
         }
 
     except Exception as e:
