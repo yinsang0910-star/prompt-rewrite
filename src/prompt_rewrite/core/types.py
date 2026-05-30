@@ -102,7 +102,7 @@ class LLMConfig:
     """LLM 连接配置 — 用户自备 API Key，纯本地控制。"""
     api_key: str = ""
     api_base: str = "https://api.deepseek.com"
-    model: str = "deepseek-chat"
+    model: str = "deepseek-v4-flash"
     temperature: float = 0.3
     max_tokens: int = 2048
     timeout: int = 30

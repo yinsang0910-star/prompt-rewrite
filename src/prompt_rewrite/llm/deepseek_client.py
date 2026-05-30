@@ -52,7 +52,7 @@ class DeepSeekClient:
         for attempt in range(1 + self.config.max_retries):
             try:
                 resp = self._session.post(
-                    f"{self.config.api_base.rstrip('/')}/v1/chat/completions",
+                    f"{self.config.api_base.rstrip('/')}/chat/completions",
                     json={
                         "model": self.config.model,
                         "messages": messages,

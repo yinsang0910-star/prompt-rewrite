@@ -121,7 +121,7 @@ async def api_rewrite(req: Request):
     language = body.get("language", "auto")
     no_cot = body.get("no_cot", False)
     api_key = body.get("api_key", "")
-    model = body.get("model", "deepseek-chat")
+    model = body.get("model", "deepseek-v4-flash")
     enhance_analysis = body.get("enhance_analysis", False)
     enhance_rewrite = body.get("enhance_rewrite", False)
     validate = body.get("validate", False)
