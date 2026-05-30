@@ -1,0 +1,136 @@
+# ── Structure Pattern Templates ──────────────────────────────────────────────
+# Common prompt structure patterns.
+#
+# Each pattern defines:
+#   - A list of sections in order
+#   - Section tags and descriptions
+#   - Applicable scenarios
+
+patterns:
+  # Standard instruction pattern: for most task-based prompts
+  instruction:
+    description: 标准任务指令结构
+    sections:
+      - tag: role
+        required: true
+        description: 角色定义
+      - tag: thinking
+        required: false
+        description: 推理指导
+      - tag: constraints
+        required: false
+        description: 约束条件
+      - tag: context
+        required: false
+        description: 上下文/背景
+      - tag: input
+        required: true
+        description: 输入数据
+      - tag: examples
+        required: false
+        description: 示例
+      - tag: output_format
+        required: false
+        description: 输出格式要求
+    applicable_to:
+      - instruction
+      - qa
+
+  # Code generation pattern: programming task
+  code:
+    description: 代码生成/调试结构
+    sections:
+      - tag: role
+        required: true
+        description: 工程师角色
+      - tag: thinking
+        required: true
+        description: 推理步骤
+      - tag: requirements
+        required: true
+        description: 需求说明
+      - tag: context
+        required: false
+        description: 现有代码/上下文
+      - tag: constraints
+        required: true
+        description: 技术约束（语言、框架、性能）
+      - tag: examples
+        required: false
+        description: 输入/输出示例
+      - tag: output_format
+        required: true
+        description: 代码格式要求
+    applicable_to:
+      - code
+
+  # Analysis pattern: compare/evaluate/analyze
+  analysis:
+    description: 分析/评估结构
+    sections:
+      - tag: role
+        required: true
+        description: 分析师角色
+      - tag: thinking
+        required: true
+        description: 系统分析步骤
+      - tag: context
+        required: true
+        description: 分析背景
+      - tag: input
+        required: true
+        description: 待分析的数据/文本
+      - tag: constraints
+        required: false
+        description: 分析维度/范围
+      - tag: output_format
+        required: true
+        description: 分析报告格式
+    applicable_to:
+      - analysis
+      - extraction
+
+  # Writing pattern: compose/rewrite/translate
+  writing:
+    description: 写作/润色结构
+    sections:
+      - tag: role
+        required: true
+        description: 编辑角色
+      - tag: input
+        required: true
+        description: 待处理的文本
+      - tag: instructions
+        required: true
+        description: 写作指示（风格、长度、目标）
+      - tag: constraints
+        required: false
+        description: 风格约束
+      - tag: output_format
+        required: false
+        description: 输出格式
+    applicable_to:
+      - writing
+      - creative
+
+  # Extraction pattern: structured data extraction
+  extraction:
+    description: 结构化提取结构
+    sections:
+      - tag: role
+        required: false
+        description: 提取角色
+      - tag: input
+        required: true
+        description: 源文本
+      - tag: instructions
+        required: true
+        description: 提取目标说明
+      - tag: schema
+        required: true
+        description: 输出结构定义
+      - tag: examples
+        required: true
+        description: 提取示例
+    applicable_to:
+      - extraction
