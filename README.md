@@ -1,87 +1,147 @@
 # Prompt Rewrite System (PRS)
 
-> **Prompt Rewrite Engine — with AI Enhancement**
+> **智能 Prompt 重写引擎 — 本地策略规则 + DeepSeek AI 增强双层架构**
 
-## 🚀 Quick Start
+PRS 是一个双引擎 prompt 重写系统，内置 **7 条 prompt engineering 本地策略**，可完全离线运行；同时可选接入 **DeepSeek API** 实现 AI 语义级重写、增强分析与质量验证。
 
-| System | How to start |
-|--------|-------------|
-| **Windows** | Double-click `start.bat` |
-| **macOS** | Run `bash start.sh` in Terminal |
-| **Both** | Or: `pip install -r requirements.txt && python launch_ui.py` |
+---
 
-Then open `http://localhost:8000` (or the browser opens automatically).
+## 🚀 10 秒快速体验
 
-> For AI rewrite features, get a free API key at [platform.deepseek.com](https://platform.deepseek.com)
+```bash
+pip install -r requirements.txt
+python launch_ui.py
+# → 浏览器自动打开 http://localhost:8000
+```
 
-## 概述
+无需任何 API Key，开箱即用。规则引擎会分析你的 prompt，自动应用最佳策略组合。
 
-PRS 是一个智能 prompt 重写系统，自动分析原始用户 prompt，并应用 prompt engineering 最佳实践，生成结构清晰、质量更高的优化 prompt。
+---
 
-### 核心策略
+## 🏗️ 双引擎架构
 
-| 策略 | 说明 |
-|---|---|
-| `StructureFormatter` | XML 标签结构化（instructions / context / input） |
-| `RoleEnhancer` | 角色注入（工程师 / 分析师 / 编辑等） |
-| `ChainOfThoughtInjector` | CoT 推理脚手架 |
-| `ConstraintInjector` | 质量与安全约束 |
-| `OutputFormatter` | 输出格式约束 |
-| `ExampleFormatter` | Few-shot 示例格式化 |
-| `ContextOptimizer` | 上下文排序（数据在前，查询在后） |
+```
+                         ┌──────────────────────┐
+                         │    Original Prompt    │
+                         └──────────┬───────────┘
+                                    ▼
+                     ┌──────────────────────────┐
+                     │    PromptAnalyzer        │
+                     │  · 类别检测 (8类)         │
+                     │  · 复杂度评估 (3级)       │
+                     │  · 语言识别 (zh/en/ja)    │
+                     │  · 领域检测 (10领域)       │
+                     │  · 特征检测 (代码/示例等)   │
+                     └──────────┬───────────────┘
+                                    ▼
+            ┌───────────────────────────────────────┐
+            │                                       │
+            ▼                                       ▼
+  ┌─────────────────────┐              ┌────────────────────────┐
+  │  Engine A: 规则引擎   │              │  Engine B: DeepSeek AI  │
+  │  (零依赖 · 离线运行)  │              │  (可选 · 需 API Key)    │
+  │                     │              │                        │
+  │  7 条 prompt 策略：   │   ┌───────  │  · LLM 增强分析         │
+  │  · 角色注入           │   │ 可选    │  · LLM 语义重写          │
+  │  · XML 结构化         │   │        │  · LLM 质量验证          │
+  │  · CoT 推理注入       │   │        │                        │
+  │  · 质量/安全约束       │   │        │  默认模型:               │
+  │  · 输出格式约束        │   │        │  deepseek-v4-flash      │
+  │  · Few-shot 格式化    │   │        │                        │
+  │  · 上下文重排序        │   │        │                        │
+  └─────────┬───────────┘  │        └───────────┬────────────┘
+            │              │                    │
+            └──────────────┴────────────────────┘
+                           ▼
+               ┌────────────────────┐
+               │  Optimized Prompt  │
+               └────────────────────┘
+```
 
-### Dynamic Workflows
+### 引擎 A：规则引擎（默认激活，零依赖）
 
-每个 prompt 类别走专属工作流，而非固定流水线：
+7 条基于 prompt engineering 最佳实践的本地策略，按 Dynamic Workflow 自动编排：
+
+| 策略 | 作用 | 触发条件 |
+|------|------|----------|
+| **RoleEnhancer** | 注入角色身份（工程师/分析师/编辑等） | 非闲聊类 prompt |
+| **StructureFormatter** | XML 标签结构化（instructions/context/input） | 所有任务类 prompt |
+| **ChainOfThoughtInjector** | 植入「逐步推理」思考脚手架 | 中/高复杂度 prompt |
+| **ConstraintInjector** | 质量与安全约束注入 | 代码/指令类 prompt |
+| **OutputFormatter** | 输出格式约束 | 几乎全部 |
+| **ExampleFormatter** | Few-shot 示例格式化 | 含示例时 |
+| **ContextOptimizer** | 数据在前、查询在后的上下文排序 | 长 prompt |
+
+每条策略的 `should_apply` 方法决定是否在当前 prompt 上生效，而非无脑全开。
+
+### 引擎 B：DeepSeek AI 增强（可选，需 API Key）
+
+接入 DeepSeek Chat API（默认模型 `deepseek-v4-flash`），提供三层能力：
+
+| 能力 | 说明 | 触发方式 |
+|------|------|----------|
+| **LLM 增强分析** | 当规则引擎无法分类时（如模糊 prompt、跨领域），用 LLM 做补充分类 | `--enhance-analysis` |
+| **LLM 语义重写** | 从零开始对原始 prompt 做语义级深度重写，非模板拼接 | `--enhance-rewrite` |
+| **LLM 质量验证** | 对重写结果打分 + 给出改进建议 | `--validate` |
+
+> 不传 API Key 时项目完全可用，所有规则引擎功能不受影响。
+
+---
+
+## 💡 工作流（Dynamic Workflows）
+
+每个 prompt 类别走专属工作流，非固定流水线：
 
 ```
 Analyze → 按类别路由:
-    ├─ CODE:      Structure → Role(engineer) → CoT → Constraint → Output    [5步]
-    ├─ QA:        Structure → Role(qa) → Output                              [3步]
-    ├─ ANALYSIS:  Structure → Role(analyst) → CoT → Output(analysis)         [4步]
-    ├─ WRITING:   Structure → Role(writer) → Output(writing)                 [3步]
-    ├─ CREATIVE:  Structure → Role(creative) → Output(writing)               [3步]
-    ├─ EXTRACTION:Structure → Role(engineer) → Output(extraction)            [3步]
-    ├─ INSTRUCTION:Structure → Role(default) → Constraint → Output           [4步]
-    ├─ CONVERSATION:[不处理]                                                  [0步]
-    └─ UNKNOWN:   Structure → Role(default) → Constraint(safety) → Output    [4步]
+    ├─ CODE:        Structure → Role(engineer) → CoT → Constraint → Output
+    ├─ QA:          Structure → Role(qa) → Output
+    ├─ ANALYSIS:    Structure → Role(analyst) → CoT → Output(analysis)
+    ├─ WRITING:     Structure → Role(writer) → Output(writing)
+    ├─ CREATIVE:    Structure → Role(creative) → Output(writing)
+    ├─ EXTRACTION:  Structure → Role(engineer) → Output(extraction)
+    ├─ INSTRUCTION: Structure → Role(default) → Constraint → Output
+    ├─ CONVERSATION: [不处理，原样返回]
+    └─ UNKNOWN:     Structure → Role(default) → Constraint(safety) → Output
 ```
 
-## 快速开始
+---
 
-### 安装
+## 📦 安装
 
 ```bash
+# 方式一：源码安装（推荐）
 pip install -e .
+
+# 方式二：仅安装依赖
+pip install -r requirements.txt
 ```
 
-### 命令行使用
+## 🖥️ 使用方式
+
+### 命令行
 
 ```bash
-# 基本用法
+# 基础使用
 prompt-rewrite "Write a Python function to sort a list"
 
 # 显示详细分析信息
 prompt-rewrite "Explain recursion" --verbose
 
-# 完整模式（默认）
+# 预设模式
 prompt-rewrite "Analyze the trade-offs..." --preset full
-
-# 基础模式（仅角色 + 结构 + 输出格式）
-prompt-rewrite "Write a blog post about AI" --preset basic
+prompt-rewrite "Write a blog post" --preset basic
+prompt-rewrite "Do X" --preset minimal
 
 # 输出到文件
 prompt-rewrite "Your prompt here" -o optimized.txt
-
-# 从文件读取
-prompt-rewrite my_prompt.txt
 ```
 
-### Web UI
+### Web UI（Gradio）
 
 ```bash
 python launch_ui.py
-# 浏览器打开 http://localhost:7860
+# → http://localhost:8000
 ```
 
 ### Python API
@@ -98,59 +158,62 @@ print(f"应用策略: {[s.value for s in result.applied_strategies]}")
 print(f"重写结果:\n{result.rewritten}")
 ```
 
-## 架构
+### Python API（带 AI 增强）
 
-```
-src/prompt_rewrite/
-├── core/
-│   ├── analyzer.py        # Prompt 分析器（分类、复杂度、语言、领域）
-│   ├── pipeline.py        # Dynamic Workflow 编排引擎
-│   ├── workflow_defs.py   # 所有类别的工作流定义
-│   └── types.py           # 核心数据类型
-├── strategies/
-│   ├── base.py            # 策略基类 + 注册表
-│   ├── role_enhancer.py
-│   ├── structure_formatter.py
-│   ├── chain_of_thought.py
-│   ├── constraint_injector.py
-│   ├── output_formatter.py
-│   ├── example_formatter.py
-│   └── context_optimizer.py
-├── templates/
-│   ├── roles.yaml
-│   ├── constraints.yaml
-│   └── patterns.yaml
-└── cli.py
+```python
+from prompt_rewrite import RewritePipeline, RewriteConfig
+from prompt_rewrite.core.types import LLMConfig
+
+config = RewriteConfig(
+    llm_config=LLMConfig(api_key="sk-xxxxxxxxxxxxxxxx"),
+    llm_enhance_analysis=True,    # AI 增强分析
+    llm_enhance_rewrite=True,     # AI 深度重写
+    llm_validate=True,            # AI 质量验证
+)
+pipeline = RewritePipeline(config=config)
+result = pipeline.run("帮我分析这个架构方案的优缺点")
 ```
 
-## 分析能力
+## 🔬 分析能力
 
-| 维度 | 检测内容 |
-|---|---|
+| 维度 | 检测范围 |
+|------|---------|
 | 类别 | code, qa, writing, analysis, creative, extraction, instruction, conversation |
-| 复杂度 | simple, medium, complex |
-| 语言 | zh, en, ja |
+| 复杂度 | simple, medium, complex（基于长度 + 指令数量 + 推理线索评分） |
+| 语言 | zh, en, ja（基于 CJK/JP 字符比例） |
 | 领域 | programming, data_science, writing, business, academic, finance, law, health, education, creative |
-| 特征 | 是否含代码、示例、结构化输出要求 |
+| 特征 | 代码块检测、示例检测、结构化输出要求检测 |
 
-## 测试
+## 🧪 测试
 
 ```bash
 pytest tests/ -v
 ```
 
-## 路线图
+## 🗺️ 路线图
 
 - [x] 核心分析器与 7 个重写策略
 - [x] Dynamic Workflows 动态编排
-- [x] YAML 模板库
+- [x] YAML 模板库（角色/约束/模式）
 - [x] CLI 与 Python API
-- [x] Web UI（Gradio）
+- [x] Web UI（Gradio + FastAPI，三语言支持）
+- [x] DeepSeek AI 增强（分析/重写/验证）
 - [ ] LLM-as-judge 自动评估重写质量
 - [ ] 更多语言支持（ja, ko, fr, de）
 - [ ] Prompt 版本对比和 A/B 测试
 - [ ] VSCode 插件
 
-## 许可证
+## 🔧 技术栈
 
-MIT
+| 组件 | 技术 |
+|------|------|
+| 语言 | Python ≥ 3.8 |
+| 规则引擎 | 纯 Python + YAML 模板，零外部依赖 |
+| AI 引擎 | DeepSeek Chat API（`deepseek-v4-flash` / `deepseek-v4-pro` 可选） |
+| Web UI | Gradio / FastAPI + Tailwind CSS |
+| CLI | Click |
+| 构建 | setuptools + pyproject.toml |
+
+## 📄 许可证
+
+MIT © 银桑
