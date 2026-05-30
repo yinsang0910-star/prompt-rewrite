@@ -1,16 +1,15 @@
 @echo off
 chcp 65001 >nul
 title Prompt Rewrite System
+cd /d "%~dp0.."
 
 echo =====================================================
-echo   🪄  Prompt Rewrite System  v0.2.0
+echo   Prompt Rewrite System  v0.2.0
 echo   Smart Prompt Optimization
 echo =====================================================
 echo.
 echo   Installing dependencies...
-
 pip install -r requirements.txt -q
-
 echo.
 echo   Starting server...
 echo.
