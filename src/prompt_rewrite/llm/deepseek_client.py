@@ -28,6 +28,7 @@ class DeepSeekClient:
     def __init__(self, config: LLMConfig):
         self.config = config
         self._session = requests.Session()
+        self._session.trust_env = False  # 禁用系统代理，避免 Windows 代理干扰
         self._session.headers.update({
             "Authorization": f"Bearer {config.api_key}",
             "Content-Type": "application/json",
