@@ -240,7 +240,11 @@ def main():
         import time
         time.sleep(1.5)
         try:
-            os.startfile(url)
+            if sys.platform == "win32":
+                os.startfile(url)
+            else:
+                import webbrowser
+                webbrowser.open(url)
         except Exception:
             pass
     threading.Thread(target=_open_browser, daemon=True).start()
