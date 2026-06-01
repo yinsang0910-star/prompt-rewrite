@@ -1,7 +1,6 @@
 """Prompt Rewrite System — 基于 Prompt Engineering 最佳实践的 prompt 重写引擎."""
 
 from prompt_rewrite.core.types import (
-    Prompt,
     AnalysisResult,
     RewriteConfig,
     RewriteResult,

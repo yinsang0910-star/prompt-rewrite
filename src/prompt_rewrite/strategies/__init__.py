@@ -8,6 +8,7 @@ from prompt_rewrite.strategies.constraint_injector import ConstraintInjector
 from prompt_rewrite.strategies.output_formatter import OutputFormatter
 from prompt_rewrite.strategies.example_formatter import ExampleFormatter
 from prompt_rewrite.strategies.context_optimizer import ContextOptimizer
+from prompt_rewrite.strategies.refusal_guard import RefusalGuard
 
 # Register all strategies
 for _s in [
@@ -18,6 +19,7 @@ for _s in [
     OutputFormatter,
     ExampleFormatter,
     ContextOptimizer,
+    RefusalGuard,
 ]:
     StrategyRegistry.register(_s)
 
@@ -31,4 +33,5 @@ __all__ = [
     "OutputFormatter",
     "ExampleFormatter",
     "ContextOptimizer",
+    "RefusalGuard",
 ]

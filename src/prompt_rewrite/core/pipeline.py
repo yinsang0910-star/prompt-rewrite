@@ -172,6 +172,9 @@ class RewritePipeline:
         # Step 6: Optional LLM validation (validate the FINAL rewritten version)
         result = self._maybe_llm_validate(prompt, result.rewritten, result)
 
+        # Step 7: Apply output style formatting
+        result = self._apply_output_style(result)
+
         return result
 
     def _maybe_llm_rewrite(self, original: str, base: RewriteResult) -> RewriteResult:
@@ -235,10 +238,26 @@ class RewritePipeline:
         rewritten_lines = rewritten.splitlines()
         diff = difflib.unified_diff(original_lines, rewritten_lines, fromfile="原始", tofile="重写后", lineterm="")
         diff_text = "\n".join(list(diff)[:100])
-        added = sum(1 for line in rewritten_lines if line not in original_lines)
-        removed = sum(1 for line in original_lines if line not in rewritten_lines)
+        original_set = set(original_lines)
+        rewritten_set = set(rewritten_lines)
+        added = sum(1 for line in rewritten_lines if line not in original_set)
+        removed = sum(1 for line in original_lines if line not in rewritten_set)
         return (
             f"📊 变更统计: +{added} / -{removed} 行\n"
             f"📐 原始: {len(original)} 字符 → 重写后: {len(rewritten)} 字符\n"
             f"───\n{diff_text}"
         )
+
+
+    def _apply_output_style(self, result: "RewriteResult") -> "RewriteResult":
+        """Wrap rewritten text according to output_style config (instruction / system_prompt / chat_ml)."""
+        style = self.config.output_style
+        if style == "instruction" or not result.rewritten:
+            return result
+        text = result.rewritten
+        nl = chr(10)
+        if style == "system_prompt":
+            result.rewritten = f"[SYSTEM]{nl}{text}{nl}[/SYSTEM]"
+        elif style == "chat_ml":
+            result.rewritten = f'<|im_start|>system{nl}{text}{nl}</im_end>'
+        return result

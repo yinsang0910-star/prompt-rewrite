@@ -1,5 +1,4 @@
 from prompt_rewrite.core.types import (
-    Prompt,
     AnalysisResult,
     RewriteConfig,
     RewriteResult,

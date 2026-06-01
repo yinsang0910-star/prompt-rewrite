@@ -83,6 +83,11 @@ def _cx() -> WorkflowStep:
     return WorkflowStep(strategy=StrategyName.CONTEXT_OPTIMIZER)
 
 
+def _g() -> WorkflowStep:
+    """Shorthand for RefusalGuard step."""
+    return WorkflowStep(strategy=StrategyName.REFUSAL_GUARD)
+
+
 # ── Workflow Definitions ────────────────────────────────────────────────
 
 # Each workflow is hand-crafted for its category.
@@ -92,13 +97,14 @@ WORKFLOWS: dict[PromptCategory, WorkflowDef] = {
     # ── CODE ──────────────────────────────────────────────────────────────
     PromptCategory.CODE: WorkflowDef(
         category=PromptCategory.CODE,
-        description="代码类 prompt：工程师角色 → 推理 → 约束 → 输出格式",
+        description="代码类 prompt：工程师角色 → 推理 → 约束 → 边界防护 → 输出格式",
         steps=[
             _s(),                          # 1. 结构化
             _r("programming"),             # 2. 注入高级工程师角色
             _t(),                          # 3. 代码推理步骤
             _c(),                          # 4. 代码质量约束
-            _o("code"),                    # 5. 代码输出格式
+            _g(),                          # 5. 边界防护
+            _o("code"),                    # 6. 代码输出格式
         ],
     ),
 
@@ -162,13 +168,14 @@ WORKFLOWS: dict[PromptCategory, WorkflowDef] = {
     # ── INSTRUCTION ──────────────────────────────────────────────────────
     PromptCategory.INSTRUCTION: WorkflowDef(
         category=PromptCategory.INSTRUCTION,
-        description="指令类 prompt：结构化 → 默认角色 → 约束 → 上下文优化 → 输出格式",
+        description="指令类 prompt：结构化 → 默认角色 → 约束 → 边界防护 → 上下文优化 → 输出格式",
         steps=[
             _s(),                          # 1. 结构化
             _r("default"),                 # 2. 默认助手角色
             _c(),                          # 3. 通用约束
-            _cx(),                         # 4. 上下文优化 (T2.7: 补充覆盖)
-            _o("general"),                 # 5. 输出格式
+            _g(),                          # 4. 边界防护
+            _cx(),                         # 5. 上下文优化 (T2.7: 补充覆盖)
+            _o("general"),                 # 6. 输出格式
         ],
     ),
 
@@ -183,12 +190,13 @@ WORKFLOWS: dict[PromptCategory, WorkflowDef] = {
     # ── UNKNOWN ──────────────────────────────────────────────────────────
     PromptCategory.UNKNOWN: WorkflowDef(
         category=PromptCategory.UNKNOWN,
-        description="未分类 prompt：保守处理，结构化+安全约束",
+        description="未分类 prompt：保守处理，结构化+安全约束+边界防护",
         steps=[
             _s(),                          # 1. 结构化
             _r("default"),                 # 2. 默认角色
             _c(),                          # 3. 安全约束
-            _o("general"),                 # 4. 通用输出格式
+            _g(),                          # 4. 边界防护
+            _o("general"),                 # 5. 通用输出格式
         ],
     ),
 }

@@ -40,7 +40,7 @@ class StrategyName(str, enum.Enum):
     OUTPUT_FORMATTER = "output_formatter"         # 输出格式 — 类似 structured output
     EXAMPLE_FORMATTER = "example_formatter"       # 示例格式化 — 类似 <example> 标签
     CONTEXT_OPTIMIZER = "context_optimizer"       # 上下文排序 — "data first, query last"
-    REFUSAL_GUARD = "refusal_guard"               # 边界防护 — TODO: 声明但无对应实现类
+    REFUSAL_GUARD = "refusal_guard"               # 边界防护 — 安全边界与拒绝指令
     LLM_REWRITE = "llm_rewrite"                   # LLM 深度重写 — DeepSeek 语义优化
 
 
@@ -148,18 +148,3 @@ class RewriteConfig:
     llm_enhance_analysis: bool = False     # 用 LLM 补充分析
     llm_enhance_rewrite: bool = False      # 用 LLM 重写 prompt
     llm_validate: bool = False             # 用 LLM 校验结果
-
-
-@dataclass
-class Prompt:
-    """A prompt being processed by the system."""
-    raw: str
-    analysis: Optional[AnalysisResult] = None
-    config: Optional[RewriteConfig] = None
-
-    def analyze(self) -> AnalysisResult:
-        """Run analysis if not already done."""
-        from prompt_rewrite.core.analyzer import PromptAnalyzer
-        if self.analysis is None:
-            self.analysis = PromptAnalyzer().analyze(self.raw)
-        return self.analysis

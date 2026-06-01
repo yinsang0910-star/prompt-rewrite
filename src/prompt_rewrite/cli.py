@@ -43,12 +43,34 @@ STRATEGY_OPTIONS = {
         StrategyName.STRUCTURE_FORMATTER.value,
         StrategyName.CHAIN_OF_THOUGHT.value,
         StrategyName.CONSTRAINT_INJECTOR.value,
+        StrategyName.REFUSAL_GUARD.value,
         StrategyName.OUTPUT_FORMATTER.value,
         StrategyName.EXAMPLE_FORMATTER.value,
         StrategyName.CONTEXT_OPTIMIZER.value,
     ],
 }
 
+
+
+# -- i18n messages for CLI output --
+_MESSAGES = {
+    "zh": {
+        "empty_input": "错误: 请输入 prompt 文本",
+        "written_to": "✅ 已写入 {}",
+    },
+    "en": {
+        "empty_input": "Error: please provide prompt text",
+        "written_to": "✅ Written to {}",
+    },
+}
+
+def _msg(key: str, lang: str = "zh", *args) -> str:
+    """Lookup an i18n message by key, falling back to zh."""
+    table = _MESSAGES.get(lang, _MESSAGES["zh"])
+    text = table.get(key, _MESSAGES["zh"].get(key, key))
+    if args:
+        return text.format(*args)
+    return text
 
 @click.command(
     name="prompt-rewrite",
@@ -131,7 +153,7 @@ def main(
 
     raw = _read_input(prompt)
     if not raw.strip():
-        click.echo("错误: 请输入 prompt 文本", err=True)
+        click.echo(_msg("empty_input", lang), err=True)
         sys.exit(1)
 
     # Lazy import pipeline (allows step-by-step development)
@@ -213,7 +235,7 @@ def main(
     if output:
         with open(output, "w", encoding="utf-8") as f:
             f.write(final)
-        click.echo(f"✅ 已写入 {output}")
+        click.echo(_msg("written_to", lang, output))
     else:
         click.echo(final)
 
