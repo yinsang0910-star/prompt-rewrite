@@ -3,7 +3,7 @@ chcp 65001 >nul
 title Prompt Rewrite System
 
 echo =====================================================
-echo   Prompt Rewrite System  v0.2.0
+echo   Prompt Rewrite System  v0.2.1
 echo   Smart Prompt Optimization
 echo =====================================================
 echo.

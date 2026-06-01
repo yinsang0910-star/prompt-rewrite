@@ -4,7 +4,7 @@ set -e
 cd "$(dirname "$0")/.."
 
 echo "====================================================="
-echo "  Prompt Rewrite System v0.2.0"
+echo "  Prompt Rewrite System v0.2.1"
 echo "====================================================="
 echo ""
 
