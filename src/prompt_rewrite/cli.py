@@ -13,6 +13,7 @@ import click
 from prompt_rewrite.core.types import (
     RewriteConfig,
     StrategyName,
+    LLMConfig,
 )
 # Pipeline imported lazily inside main() to allow step-by-step development
 
@@ -92,6 +93,16 @@ STRATEGY_OPTIONS = {
     help="禁用 Chain-of-Thought 注入",
 )
 @click.option(
+    "--api-key",
+    default=None,
+    help="DeepSeek API Key (启用 LLM 增强)",
+)
+@click.option(
+    "--model",
+    default=None,
+    help="LLM 模型名 (default: deepseek-v4-flash)",
+)
+@click.option(
     "-o", "--output",
     type=click.Path(writable=True),
     help="输出到文件而非 stdout",
@@ -105,6 +116,8 @@ def main(
     verbose: bool = False,
     show_diff: bool = False,
     no_cot: bool = False,
+    api_key: Optional[str] = None,
+    model: Optional[str] = None,
     output: Optional[str] = None,
 ) -> None:
     """Prompt Rewrite System — 读取原始 prompt，输出优化后的高质量 prompt。"""
@@ -138,6 +151,13 @@ def main(
         output_style=style,
         add_refusal_guard=True,
         inject_chain_of_thought=not no_cot,
+        # LLM enhancement (optional)
+        llm_config=LLMConfig(
+            api_key=api_key or "",
+            **({"model": model} if model else {}),
+        ),
+        llm_enhance_rewrite=bool(api_key),
+        llm_enhance_analysis=bool(api_key),
     )
 
     pipeline = RewritePipeline(config)

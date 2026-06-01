@@ -120,11 +120,18 @@ class ConstraintInjector(RewriteStrategy):
         return selected
 
     def _needs_safety(self, analysis: AnalysisResult) -> bool:
-        """Determine if safety constraints should be added."""
-        # Always add safety for unknown/unclear categories
-        if analysis.category in (PromptCategory.UNKNOWN, PromptCategory.INSTRUCTION):
-            return True
-        return False
+        """Determine if safety constraints should be added.
+
+        T2.11: Extended to cover CODE (may generate harmful code) and
+        CREATIVE (may generate inappropriate content) categories.
+        """
+        safety_categories = (
+            PromptCategory.UNKNOWN,
+            PromptCategory.INSTRUCTION,
+            PromptCategory.CODE,
+            PromptCategory.CREATIVE,
+        )
+        return analysis.category in safety_categories
 
     def _has_constraints(self, prompt: str) -> bool:
         """Check if constraints section already exists."""

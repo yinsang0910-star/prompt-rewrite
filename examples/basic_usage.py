@@ -2,6 +2,7 @@
 """Prompt Rewrite System — 基本使用示例."""
 
 from prompt_rewrite import RewritePipeline, RewriteConfig
+from prompt_rewrite.core.types import StrategyName
 
 
 def demo_basic():
@@ -88,8 +89,6 @@ def demo_zh_prompt():
 
 
 if __name__ == "__main__":
-    from prompt_rewrite.core.types import StrategyName
-
     print("\n🔧 Prompt Rewrite System — 使用示例\n")
     
     demo_basic()

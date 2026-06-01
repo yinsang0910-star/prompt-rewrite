@@ -27,12 +27,11 @@ class DeepSeekClient:
 
     def __init__(self, config: LLMConfig):
         self.config = config
-        self._session = requests.Session()
-        self._session.trust_env = False  # 禁用系统代理，避免 Windows 代理干扰
-        self._session.headers.update({
+        self._url = f"{config.api_base.rstrip('/')}/chat/completions"
+        self._headers = {
             "Authorization": f"Bearer {config.api_key}",
             "Content-Type": "application/json",
-        })
+        }
         self.last_raw: Optional[dict] = None  # 最近一次 API 调用的完整返回
 
     def chat(self, prompt: str, system: str = "") -> str:
@@ -48,12 +47,15 @@ class DeepSeekClient:
         return self._call(messages)
 
     def _call(self, messages: list[dict]) -> str:
-        """调用 DeepSeek Chat API，含自动重试。"""
+        """调用 DeepSeek Chat API，含自动重试（Timeout / 429 / 5xx）。"""
+        self.last_raw = None  # T1.8: 每次调用前清空旧数据
         last_err = None
+
         for attempt in range(1 + self.config.max_retries):
             try:
-                resp = self._session.post(
-                    f"{self.config.api_base.rstrip('/')}/chat/completions",
+                resp = requests.post(
+                    self._url,
+                    headers=self._headers,
                     json={
                         "model": self.config.model,
                         "messages": messages,
@@ -78,14 +80,33 @@ class DeepSeekClient:
                 return data["choices"][0]["message"]["content"].strip()
 
             except requests.exceptions.Timeout:
-                return "[LLM Timeout]"
-            except requests.exceptions.HTTPError as e:
-                if attempt < self.config.max_retries and e.response.status_code >= 500:
-                    time.sleep(1 * (attempt + 1))
+                last_err = f"[LLM Timeout after {self.config.timeout}s]"
+                # T1.5: Timeout 也进入重试循环，指数退避
+                if attempt < self.config.max_retries:
+                    time.sleep(min(2 ** attempt, 8))
                     continue
-                return f"[LLM HTTP {e.response.status_code}]"
+                return last_err
+
+            except requests.exceptions.HTTPError as e:
+                status = e.response.status_code
+                if status == 429:
+                    # T1.6: 429 Rate Limit 重试，读取 Retry-After
+                    last_err = f"[LLM Rate Limited (429)]"
+                    if attempt < self.config.max_retries:
+                        retry_after = int(e.response.headers.get("Retry-After", 2 ** attempt))
+                        time.sleep(min(retry_after, 30))
+                        continue
+                elif status >= 500 and attempt < self.config.max_retries:
+                    # 5xx 服务端错误重试
+                    last_err = f"[LLM HTTP {status}]"
+                    time.sleep(min(2 ** attempt, 8))
+                    continue
+                return f"[LLM HTTP {status}]"
+
             except Exception as e:
                 return f"[LLM Error: {e}]"
+
+        return last_err or "[LLM Error: max retries exceeded]"
 
     def chat_json(self, prompt: str, system: str = "") -> dict:
         """调用 LLM 并解析 JSON 返回。"""

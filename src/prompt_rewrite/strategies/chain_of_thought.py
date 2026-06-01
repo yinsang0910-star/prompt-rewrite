@@ -118,6 +118,14 @@ class ChainOfThoughtInjector(RewriteStrategy):
         if any(kw in str(analysis.domains) for kw in ["math", "physics", "science"]):
             return COT_TEMPLATES["math"]
 
+        # T2.10: Activate debate/comparison templates based on key entities
+        entities_lower = " ".join(analysis.key_entities).lower()
+        text_repr = entities_lower + " ".join(analysis.domains)
+        if any(kw in text_repr for kw in ["debate", "versus", "vs", "argument", "立场"]):
+            return COT_TEMPLATES["debate"]
+        if any(kw in text_repr for kw in ["compare", "comparison", "versus", "vs", "对比"]):
+            return COT_TEMPLATES["comparison"]
+
         # Default to general
         return COT_TEMPLATES["general"]
 

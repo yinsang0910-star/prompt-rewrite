@@ -1,6 +1,5 @@
 """
 Core data types for the Prompt Rewrite System.
-Core data types for the Prompt Rewrite System.
 """
 
 from __future__ import annotations
@@ -41,7 +40,8 @@ class StrategyName(str, enum.Enum):
     OUTPUT_FORMATTER = "output_formatter"         # 输出格式 — 类似 structured output
     EXAMPLE_FORMATTER = "example_formatter"       # 示例格式化 — 类似 <example> 标签
     CONTEXT_OPTIMIZER = "context_optimizer"       # 上下文排序 — "data first, query last"
-    REFUSAL_GUARD = "refusal_guard"               # 边界防护 — 类似 refusal policies
+    REFUSAL_GUARD = "refusal_guard"               # 边界防护 — TODO: 声明但无对应实现类
+    LLM_REWRITE = "llm_rewrite"                   # LLM 深度重写 — DeepSeek 语义优化
 
 
 @dataclass
@@ -70,6 +70,10 @@ class RewriteResult:
     workflow_steps: list[StrategyName] = field(default_factory=list)
     workflow_name: str = ""
     diff_summary: str = ""
+    # LLM 增强信息（可选，仅在启用 LLM 时填充）
+    _llm_error: Optional[str] = field(default=None, repr=False)
+    _llm_score: Optional[float] = field(default=None, repr=False)
+    _llm_feedback: Optional[str] = field(default=None, repr=False)
 
 
 @dataclass

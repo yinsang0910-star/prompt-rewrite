@@ -155,6 +155,9 @@ class PromptAnalyzer:
         """Classify prompt into a category using weighted pattern scoring."""
         scores: dict[PromptCategory, int] = {cat: 0 for cat in PromptCategory}
 
+        # Weight rationale: categories with fewer/more specific patterns get weight 3
+        # to avoid false negatives; categories with many broad patterns (CODE, QA,
+        # CONVERSATION, INSTRUCTION) get weight 2 to reduce false positives.
         for pattern in _CODE_PATTERNS:
             if re.search(pattern, text, re.IGNORECASE):
                 scores[PromptCategory.CODE] += 2
@@ -241,17 +244,31 @@ class PromptAnalyzer:
             return ComplexityLevel.COMPLEX
 
     def _detect_language(self, text: str) -> str:
-        """Detect primary natural language."""
+        """Detect primary natural language using character-level ratios.
+
+        Fixes: previous version compared character counts (CJK) with word counts (EN),
+        which is inconsistent (apples vs oranges). Now uses character ratios for all.
+        """
+        total = len(text.strip())
+        if total == 0:
+            return "unknown"
+
         cjk_chars = len(_CJK_PATTERN.findall(text))
         jp_chars = len(_JP_PATTERN.findall(text))
-        en_words = len(_EN_PATTERN.findall(text))
+        en_chars = len(re.findall(r"[a-zA-Z]", text))
 
-        # Japanese characters also count as CJK, so check JP first
-        if jp_chars > en_words:
+        cjk_ratio = cjk_chars / total
+        jp_ratio = jp_chars / total
+        en_ratio = en_chars / total
+
+        # Japanese kana are unique to Japanese — check first
+        if jp_ratio > 0.05:
             return "ja"
-        if cjk_chars > en_words:
+        # CJK > 10% of total characters → Chinese
+        if cjk_ratio > 0.10:
             return "zh"
-        if en_words > 0:
+        # English letters > 30% → English
+        if en_ratio > 0.30:
             return "en"
         return "unknown"
 
@@ -279,12 +296,18 @@ class PromptAnalyzer:
         return any(re.search(p, text, re.IGNORECASE) for p in patterns)
 
     def _has_structured_output(self, text: str) -> bool:
-        """Check if the prompt requests a specific output format."""
+        """Check if the prompt requests a specific output format.
+
+        Tightened: broad words like "output"/"return"/"format" alone are NOT enough;
+        they must appear near a format specifier (JSON, CSV, etc.) or be part of a
+        clear output-format instruction.
+        """
         patterns = [
-            r"(output|return|respond with|format)",
-            r"(as JSON|as CSV|as YAML|as XML|as table)",
-            r"(in the format|structured like)",
-            r"schema",
+            r"(output|return|respond|format)\s*(as|in|into)\s*(JSON|CSV|YAML|XML|table|markdown)",
+            r"(as JSON|as CSV|as YAML|as XML|as table|as markdown)",
+            r"(in the format|structured like|formatted as)",
+            r"(output format|response format|expected output)\s*[:：]",
+            r"\bschema\b",
             r"markdown table",
             r"\bjson\b",
         ]

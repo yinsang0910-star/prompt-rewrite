@@ -150,23 +150,25 @@ WORKFLOWS: dict[PromptCategory, WorkflowDef] = {
     # ── EXTRACTION ────────────────────────────────────────────────────────
     PromptCategory.EXTRACTION: WorkflowDef(
         category=PromptCategory.EXTRACTION,
-        description="提取类 prompt：结构化 → 工程角色 → 提取输出格式",
+        description="提取类 prompt：结构化 → 工程角色 → 示例格式 → 提取输出格式",
         steps=[
             _s(),                          # 1. 结构化
             _r("programming"),             # 2. 工程角色
-            _o("extraction"),              # 3. 结构化输出格式
+            _e(),                          # 3. 示例格式化 (T2.7: 补充覆盖)
+            _o("extraction"),              # 4. 结构化输出格式
         ],
     ),
 
     # ── INSTRUCTION ──────────────────────────────────────────────────────
     PromptCategory.INSTRUCTION: WorkflowDef(
         category=PromptCategory.INSTRUCTION,
-        description="指令类 prompt：结构化 → 默认角色 → 约束 → 输出格式",
+        description="指令类 prompt：结构化 → 默认角色 → 约束 → 上下文优化 → 输出格式",
         steps=[
             _s(),                          # 1. 结构化
             _r("default"),                 # 2. 默认助手角色
             _c(),                          # 3. 通用约束
-            _o("general"),                 # 4. 输出格式
+            _cx(),                         # 4. 上下文优化 (T2.7: 补充覆盖)
+            _o("general"),                 # 5. 输出格式
         ],
     ),
 
@@ -197,12 +199,11 @@ WORKFLOWS: dict[PromptCategory, WorkflowDef] = {
 def get_workflow(category: PromptCategory) -> WorkflowDef:
     """Get the workflow definition for a prompt category.
 
-    Returns a copy so callers can safely modify it.
+    Returns the definition directly (read-only usage by pipeline).
     """
-    from copy import deepcopy
     if category in WORKFLOWS:
-        return deepcopy(WORKFLOWS[category])
-    return deepcopy(WORKFLOWS[PromptCategory.UNKNOWN])
+        return WORKFLOWS[category]
+    return WORKFLOWS[PromptCategory.UNKNOWN]
 
 
 def evaluate_condition(condition: str | None, analysis: AnalysisResult) -> bool:

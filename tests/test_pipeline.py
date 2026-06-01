@@ -119,12 +119,13 @@ class TestDynamicWorkflows:
         for cat in PromptCategory:
             assert cat in WORKFLOWS, f"Missing workflow for {cat.value}"
 
-    def test_get_workflow_returns_copy(self):
-        """get_workflow should return a copy, not the original."""
+    def test_get_workflow_returns_definition(self):
+        """get_workflow should return the correct workflow definition."""
         wf1 = get_workflow(PromptCategory.CODE)
         wf2 = get_workflow(PromptCategory.CODE)
-        assert wf1 is not wf2  # Different objects
-        assert len(wf1.steps) == len(wf2.steps)
+        assert wf1 is wf2  # Same object (read-only, no copy needed)
+        assert len(wf1.steps) > 0
+        assert wf1.category == PromptCategory.CODE
 
     def test_workflow_steps_have_valid_strategies(self):
         """All workflow steps should reference registered strategies."""

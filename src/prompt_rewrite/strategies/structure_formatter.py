@@ -132,12 +132,19 @@ class StructureFormatter(RewriteStrategy):
         if current_lines:
             sections.append((current_tag, "\n".join(current_lines), tag_starts_at))
 
-        # Simplify: remove the header line from content if it was a marker
+        # Simplify: remove pure header lines (e.g. "Context:") but keep lines
+        # that happen to match a pattern yet contain substantial content
+        # (e.g. "Your task is to write a poem about nature")
+        _PURE_HEADER_RE = re.compile(
+            r"^\s*(instructions?|task|context|background|input|text|content|"
+            r"examples?|output|format|data)\s*[:：]?\s*$",
+            re.IGNORECASE,
+        )
         cleaned: list[tuple[str, str]] = []
         for tag, content, start in sections:
             lines_c = content.split("\n")
-            # If first line was the section header, remove it
-            if self._detect_section_header(lines_c[0]):
+            # Only strip the first line if it's a pure section label (no real content)
+            if lines_c and _PURE_HEADER_RE.match(lines_c[0].strip()):
                 lines_c = lines_c[1:]
             cleaned_content = "\n".join(lines_c).strip()
             if cleaned_content:

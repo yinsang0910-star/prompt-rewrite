@@ -15,6 +15,7 @@ How Dynamic Workflows work:
 
 from __future__ import annotations
 
+import dataclasses
 import difflib
 import logging
 from typing import Optional
@@ -145,7 +146,14 @@ class RewritePipeline:
                     applied.append(step.strategy)
                     current = transformed
             except Exception as e:
-                logger.warning(f"Workflow step '{step.strategy.value}' failed: {e}.")
+                # Distinguish programming errors from recoverable failures
+                if isinstance(e, (TypeError, AttributeError, KeyError)):
+                    logger.error(
+                        f"Workflow step '{step.strategy.value}' bug: {e}. "
+                        f"This is likely a code issue, not a data issue."
+                    )
+                else:
+                    logger.warning(f"Workflow step '{step.strategy.value}' failed: {e}.")
 
         base_result = RewriteResult(
             original=prompt, rewritten=current,
@@ -194,7 +202,7 @@ class RewritePipeline:
             rewritten=llm_rewritten,
             analysis=base.analysis,
             config=self.config,
-            applied_strategies=base.applied_strategies + [StrategyName.CONTEXT_OPTIMIZER],
+            applied_strategies=base.applied_strategies + [StrategyName.LLM_REWRITE],
             workflow_steps=base.workflow_steps,
             workflow_name=base.workflow_name,
             diff_summary=self._generate_diff(original, llm_rewritten),
@@ -214,7 +222,7 @@ class RewritePipeline:
 
     def run_with_strategies(self, prompt: str, strategy_names: list[StrategyName]) -> RewriteResult:
         """Run the pipeline with a custom strategy list (legacy mode)."""
-        config = RewriteConfig(enabled_strategies=strategy_names)
+        config = dataclasses.replace(self.config, enabled_strategies=strategy_names)
         pipeline = RewritePipeline(config=config, analyzer=self.analyzer)
         return pipeline.run(prompt)
 

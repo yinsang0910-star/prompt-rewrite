@@ -5,6 +5,14 @@ Prompt Rewrite System — Web UI (i18n: EN / ZH / JA)
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Ensure the local prompt_rewrite package is importable
+_src_dir = Path(__file__).resolve().parent / "src"
+if _src_dir.exists() and str(_src_dir) not in sys.path:
+    sys.path.insert(0, str(_src_dir))
+
 import gradio as gr
 
 from prompt_rewrite import RewritePipeline, RewriteConfig
@@ -788,3 +796,6 @@ with gr.Blocks(css=CSS, title="Prompt Rewrite System", theme=gr.themes.Soft(prim
         fn=lambda: ("", "", "", "", ""),
         inputs=[], outputs=[prompt_input, output_text, analysis_output, strategies_output, diff_output, error_output],
     )
+
+if __name__ == "__main__":
+    demo.launch(server_name="127.0.0.1", server_port=7860)
