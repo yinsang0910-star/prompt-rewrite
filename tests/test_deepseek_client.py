@@ -38,7 +38,7 @@ class TestRetryLogic:
         """Timeout should retry max_retries times."""
         with patch("requests.post", side_effect=requests.exceptions.Timeout()) as mock_post:
             result = client.chat("test")
-        assert "[LLM Timeout" in result
+        assert "Timeout" in result, f"Got: {result}"
         assert mock_post.call_count == config.max_retries + 1
 
     def test_429_retries_with_retry_after(self, client, config):

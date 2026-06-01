@@ -1,44 +1,55 @@
 """
-DeepSeek API 客户端 — 轻量封装，零外部依赖（只用标准库 + requests）。
+OpenAI API 客户端 — 兼容 GPT-4o / GPT-4o-mini 等模型。
 """
 
 from __future__ import annotations
-
-import json
-import time
-from typing import Optional
 
 import requests
 
 from prompt_rewrite.core.types import LLMConfig
 from prompt_rewrite.llm.base_client import BaseLLMClient
 
+# Default OpenAI endpoints
+_OPENAI_API_BASE = "https://api.openai.com/v1"
 
-class DeepSeekClient(BaseLLMClient):
-    """DeepSeek Chat API 客户端（OpenAI 兼容格式）。
+# Recommended models per use case
+RECOMMENDED_MODELS = {
+    "gpt-4o": "GPT-4o — 最强综合能力",
+    "gpt-4o-mini": "GPT-4o Mini — 性价比之选",
+    "gpt-4-turbo": "GPT-4 Turbo — 长上下文",
+    "gpt-3.5-turbo": "GPT-3.5 Turbo — 最快最便宜",
+}
+
+
+class OpenAIClient(BaseLLMClient):
+    """OpenAI Chat Completions API 客户端。
 
     用法:
-        client = DeepSeekClient(LLMConfig(api_key="sk-..."))
-        reply = client.chat("你是谁？")
+        client = OpenAIClient(LLMConfig(
+            provider="openai",
+            api_key="sk-...",
+            model="gpt-4o",
+        ))
+        reply = client.chat("Hello")
     """
 
     def __init__(self, config: LLMConfig):
         super().__init__(config)
-        self._url = f"{config.api_base.rstrip('/')}/chat/completions"
+        base = config.api_base or _OPENAI_API_BASE
+        self._url = f"{base.rstrip('/')}/chat/completions"
         self._headers = {
             "Authorization": f"Bearer {config.api_key}",
             "Content-Type": "application/json",
         }
 
     def _call(self, messages: list[dict]) -> str:
-        """调用 DeepSeek Chat API，含自动重试（Timeout / 429 / 5xx）。"""
 
         def do_request():
             resp = requests.post(
                 self._url,
                 headers=self._headers,
                 json={
-                    "model": self.config.model,
+                    "model": self.config.model or "gpt-4o-mini",
                     "messages": messages,
                     "temperature": self.config.temperature,
                     "max_tokens": self.config.max_tokens,
@@ -51,4 +62,4 @@ class DeepSeekClient(BaseLLMClient):
             self._save_raw(data)
             return data["choices"][0]["message"]["content"].strip()
 
-        return self._retry_loop(do_request, label="DeepSeek")
+        return self._retry_loop(do_request, label="OpenAI")

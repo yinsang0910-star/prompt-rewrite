@@ -11,7 +11,7 @@ from prompt_rewrite.core.types import (
     AnalysisResult, RewriteConfig, StrategyName, PromptCategory, LLMConfig,
 )
 from prompt_rewrite.strategies.base import RewriteStrategy, StrategyRegistry
-from prompt_rewrite.llm.deepseek_client import DeepSeekClient
+from prompt_rewrite.llm.base_client import create_llm_client
 
 SYSTEM_REWRITE = """You are a prompt engineering expert. Your job is to IMPROVE the user's raw prompt.
 
@@ -53,7 +53,7 @@ class LLMRewriter(RewriteStrategy):
     priority: ClassVar[int] = 75  # 最后阶段
 
     def __init__(self, llm_config: Optional[LLMConfig] = None):
-        self.client = DeepSeekClient(llm_config) if (llm_config and llm_config.enabled) else None
+        self.client = create_llm_client(llm_config) if (llm_config and llm_config.enabled) else None
         self.last_error: str = ""
 
     def apply(
@@ -96,7 +96,7 @@ class LLMValidator:
     """用 DeepSeek 校验重写结果质量，给出评分和改进建议。"""
 
     def __init__(self, llm_config: LLMConfig):
-        self.client = DeepSeekClient(llm_config) if llm_config.enabled else None
+        self.client = create_llm_client(llm_config) if llm_config.enabled else None
 
     def validate(self, original: str, rewritten: str) -> dict:
         """校验重写质量，返回 {"score": 8, "strengths": [...], "weaknesses": [...], "suggestion": "..."}"""

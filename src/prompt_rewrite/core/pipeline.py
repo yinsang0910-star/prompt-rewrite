@@ -42,11 +42,13 @@ _llm_available = False
 try:
     from prompt_rewrite.llm.llm_analyzer import LLMAnalyzer
     from prompt_rewrite.llm.llm_strategies import LLMRewriter, LLMValidator
+    from prompt_rewrite.llm.base_client import create_llm_client
     _llm_available = True
 except ImportError:
     LLMAnalyzer = None
     LLMRewriter = None
     LLMValidator = None
+    create_llm_client = None
 
 
 class RewritePipeline:
@@ -56,9 +58,9 @@ class RewritePipeline:
         pipeline = RewritePipeline()
         result = pipeline.run("Write a Python function to sort a list")
 
-    LLM enhancement (optional, requires DeepSeek API key):
+    LLM enhancement (supports DeepSeek / OpenAI / Claude / Ollama):
         config = RewriteConfig(
-            llm_config=LLMConfig(api_key="sk-..."),
+            llm_config=LLMConfig(provider="openai", api_key="sk-...", model="gpt-4o"),
             llm_enhance_analysis=True,
             llm_enhance_rewrite=True,
         )

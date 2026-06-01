@@ -10,7 +10,7 @@ from typing import Optional
 from prompt_rewrite.core.types import (
     AnalysisResult, PromptCategory, ComplexityLevel, LLMConfig,
 )
-from prompt_rewrite.llm.deepseek_client import DeepSeekClient
+from prompt_rewrite.llm.base_client import create_llm_client
 
 SYSTEM_PROMPT = """You are a prompt analysis assistant. Given a user's input prompt, classify it
 and return JSON with these fields:
@@ -36,7 +36,7 @@ class LLMAnalyzer:
     """
 
     def __init__(self, llm_config: LLMConfig):
-        self.client = DeepSeekClient(llm_config) if llm_config.enabled else None
+        self.client = create_llm_client(llm_config) if llm_config.enabled else None
 
     def should_enhance(self, rule_result: AnalysisResult) -> bool:
         """判断是否需要 LLM 补充分析。"""

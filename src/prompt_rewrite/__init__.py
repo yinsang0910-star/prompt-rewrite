@@ -8,6 +8,7 @@ from prompt_rewrite.core.types import (
     PromptCategory,
     ComplexityLevel,
     StrategyName,
+    LLMConfig,
 )
 from prompt_rewrite.core.pipeline import RewritePipeline
 from prompt_rewrite.cli import main
@@ -20,6 +21,7 @@ __all__ = [
     "PromptCategory",
     "ComplexityLevel",
     "StrategyName",
+    "LLMConfig",
     "RewritePipeline",
     "main",
 ]

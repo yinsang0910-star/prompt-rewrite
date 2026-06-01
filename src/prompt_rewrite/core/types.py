@@ -105,9 +105,10 @@ class WorkflowDef:
 @dataclass
 class LLMConfig:
     """LLM 连接配置 — 用户自备 API Key，纯本地控制。"""
+    provider: str = "deepseek"           # deepseek / openai / claude / ollama
     api_key: str = ""
-    api_base: str = "https://api.deepseek.com"
-    model: str = "deepseek-v4-flash"
+    api_base: str = ""                   # 留空则使用各 provider 默认地址
+    model: str = ""                      # 留空则使用各 provider 推荐模型
     temperature: float = 0.3
     max_tokens: int = 2048
     timeout: int = 30
@@ -115,6 +116,9 @@ class LLMConfig:
 
     @property
     def enabled(self) -> bool:
+        # Ollama 不需要 API Key
+        if self.provider == "ollama":
+            return True
         return bool(self.api_key)
 
     @classmethod

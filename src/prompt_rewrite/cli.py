@@ -93,14 +93,20 @@ STRATEGY_OPTIONS = {
     help="禁用 Chain-of-Thought 注入",
 )
 @click.option(
+    "--provider",
+    type=click.Choice(["deepseek", "openai", "claude", "ollama"]),
+    default="deepseek",
+    help="LLM 供应商 (default: deepseek)",
+)
+@click.option(
     "--api-key",
     default=None,
-    help="DeepSeek API Key (启用 LLM 增强)",
+    help="LLM API Key (Ollama 不需要)",
 )
 @click.option(
     "--model",
     default=None,
-    help="LLM 模型名 (default: deepseek-v4-flash)",
+    help="LLM 模型名 (留空使用推荐模型)",
 )
 @click.option(
     "-o", "--output",
@@ -116,6 +122,7 @@ def main(
     verbose: bool = False,
     show_diff: bool = False,
     no_cot: bool = False,
+    provider: str = "deepseek",
     api_key: Optional[str] = None,
     model: Optional[str] = None,
     output: Optional[str] = None,
@@ -145,19 +152,23 @@ def main(
     if no_cot and StrategyName.CHAIN_OF_THOUGHT in enabled:
         enabled.remove(StrategyName.CHAIN_OF_THOUGHT)
 
+    # Determine if LLM is enabled
+    llm_enabled = bool(api_key) or provider == "ollama"
+
     config = RewriteConfig(
         enabled_strategies=enabled,
         language=lang,
         output_style=style,
         add_refusal_guard=True,
         inject_chain_of_thought=not no_cot,
-        # LLM enhancement (optional)
+        # LLM enhancement
         llm_config=LLMConfig(
+            provider=provider,
             api_key=api_key or "",
             **({"model": model} if model else {}),
         ),
-        llm_enhance_rewrite=bool(api_key),
-        llm_enhance_analysis=bool(api_key),
+        llm_enhance_rewrite=llm_enabled,
+        llm_enhance_analysis=llm_enabled,
     )
 
     pipeline = RewritePipeline(config)
