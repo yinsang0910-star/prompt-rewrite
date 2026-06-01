@@ -1,60 +1,182 @@
-# ── Constraint Templates Library ─────────────────────────────────────────────
-# Constraints are organized by category and severity.
-# Categories: quality, safety, format, ethics
+# ── Constraint Templates Library (EN / ZH / JA) ────────────────────────────
+# User can override by placing a file at ~/.prompt_rewrite/templates/constraints.yaml
 
 quality:
-  precision:
-    - "Be precise and accurate. If uncertain, clearly acknowledge the uncertainty."
-    - "Base responses on verified information. Clearly distinguish facts from interpretations."
-    - "Use specific numbers and references rather than vague quantifiers."
+  general:
+    en:
+      - "Be precise and accurate. If you're uncertain, acknowledge the uncertainty."
+      - "Base your responses on verified information. Clearly distinguish facts from interpretations."
+    zh:
+      - "请保持精确和准确。如果不确定，请坦诚说明。"
+      - "基于已验证的信息回答，明确区分事实和解读。"
+    ja:
+      - "正確かつ精密であること。不確かな場合は、その旨を明記してください。"
+      - "検証済みの情報に基づいて回答し、事実と解釈を明確に区別してください。"
 
-  completeness:
-    - "Address all parts of multi-part questions."
-    - "Provide sufficient context for each point made."
-    - "Cover edge cases and alternative scenarios where relevant."
+  code:
+    en:
+      - "Write clean, well-documented code with proper error handling."
+      - "Consider edge cases, performance implications, and security best practices."
+      - "Use established patterns and libraries rather than reinventing the wheel."
+      - "Include type hints and meaningful variable names."
+    zh:
+      - "编写清晰、文档完善、错误处理得当的代码。"
+      - "考虑边界情况、性能影响和安全最佳实践。"
+      - "使用成熟的模式和库，避免重复造轮子。"
+      - "添加类型注解和有意义的变量名。"
+    ja:
+      - "クリーンでドメントが整い、適切なエラーハンドリングのあるコードを書いてください。"
+      - "エッジケース、パフォーマンスへの影響、セキュリティのベストプラクティスを考慮してください。"
+      - "確立されたパターンとライブラリを使用し、車輪の再発明を避けてください。"
+      - "型ヒントと意味のある変数名を含めてください。"
 
-  clarity:
-    - "Use clear, unambiguous language appropriate for the audience."
-    - "Define technical terms when first used."
-    - "Structure complex information with headings, lists, or tables."
+  writing:
+    en:
+      - "Preserve the author's original voice and intent."
+      - "Use clear, concise language appropriate for the target audience."
+      - "Maintain logical flow and coherent structure."
+    zh:
+      - "保留作者原有的风格和意图。"
+      - "使用适合目标受众的清晰、简洁的语言。"
+      - "保持逻辑流畅和结构连贯。"
+    ja:
+      - "著者のオリジナルの声と意図を保持してください。"
+      - "対象読者に適した明確で簡潔な言語を使用してください。"
+      - "論理的な流れと一貫した構造を維持してください。"
+
+  analysis:
+    en:
+      - "Support all claims with evidence or reasoning."
+      - "Acknowledge alternative viewpoints and limitations of your analysis."
+      - "Distinguish between established facts and inferences."
+    zh:
+      - "用证据或推理支持所有论断。"
+      - "承认替代观点和分析的局限性。"
+      - "区分已确立的事实和推论。"
+    ja:
+      - "すべての主張を証拠または論理で裏付けてください。"
+      - "代替の視点と分析の限界を認識してください。"
+      - "確立された事実と推論を区別してください。"
+
+  academic:
+    en:
+      - "Use precise, formal language appropriate for academic discourse."
+      - "Cite sources where applicable and distinguish established knowledge from speculation."
+      - "Acknowledge methodological limitations and alternative interpretations."
+    zh:
+      - "使用适合学术讨论的精确、正式语言。"
+      - "在适用时引用来源，区分已确立的知识和推测。"
+      - "承认方法论的局限性和替代解释。"
+    ja:
+      - "学術的議論に適した正確で formal な言語を使用してください。"
+      - "該当する箇所で出典を明記し、確立された知識と推測を区別してください。"
+      - "方法論的限界と代替的解釈を認識してください。"
 
 safety:
   harm_prevention:
-    - "Do not provide instructions for illegal activities, harm, or dangerous acts."
-    - "Do not generate deceptive or misleading content intended to cause harm."
-    - "Do not generate hate speech, harassment, or discriminatory content."
+    en:
+      - "Do not provide instructions for illegal activities, harm, or dangerous acts."
+      - "Do not generate deceptive or misleading content intended to cause harm."
+      - "Do not generate hate speech, harassment, or discriminatory content."
+    zh:
+      - "不要提供非法活动、伤害或危险行为的指导。"
+      - "不要生成旨在造成伤害的欺骗性或误导性内容。"
+      - "不要生成仇恨言论、骚扰内容或歧视受保护群体的内容。"
+    ja:
+      - "違法行為、危害、危険な行為の手順を提供しないでください。"
+      - "危害を意図した欺瞞的または誤解を招くコンテンツを生成しないでください。"
+      - "ヘイトスピーチ、ハラスメント、保護されたグループを差別するコンテンツを生成しないでください。"
 
   professional_boundaries:
-    - "Do not provide specific medical diagnoses or treatment recommendations."
-    - "Do not provide specific legal advice or establish an attorney-client relationship."
-    - "Do not provide specific financial advice that could cause harm if acted upon."
-    - "Always include appropriate disclaimers for sensitive domains."
+    en:
+      - "Do not provide specific medical diagnoses or treatment recommendations."
+      - "Do not provide specific legal advice or establish an attorney-client relationship."
+      - "Do not provide specific financial advice that could cause harm if acted upon."
+      - "Always include appropriate disclaimers for sensitive domains."
+    zh:
+      - "不要提供具体的医疗诊断或治疗建议。"
+      - "不要提供具体的法律建议或建立律师-客户关系。"
+      - "不要提供可能造成伤害的财务建议。"
+      - "对敏感领域始终包含适当的免责声明。"
+    ja:
+      - "具体的な医療診断や治療の推奨を提供しないでください。"
+      - "具体的な法的助言を提供したり、依頼者関係を確立したりしないでください。"
+      - "実行した場合に害を及ぼす可能性のある財務アドバイスを提供しないでください。"
+      - "敏感な領域には常に適切な免責事項を含めてください。"
 
   ip_protection:
-    - "Respect intellectual property rights."
-    - "Do not reproduce substantial portions of copyrighted material."
-    - "Prefer to summarize, paraphrase, or excerpt rather than reproduce verbatim."
+    en:
+      - "Respect intellectual property rights."
+      - "Do not reproduce substantial portions of copyrighted material."
+      - "Prefer to summarize, paraphrase, or excerpt rather than reproduce verbatim."
+    zh:
+      - "尊重知识产权。"
+      - "不要大量复制受版权保护的材料。"
+      - "优先使用总结、转述或摘录，而非逐字复制。"
+    ja:
+      - "知的財産権を尊重してください。"
+      - "著作権保護された資料の大部分を複製しないでください。"
+      - "逐字的な複製よりも、要約、言い換え、引用を好んでください。"
 
 formatting:
   structure:
-    - "Use clear section breaks and logical organization."
-    - "Use appropriate formatting (headings, code blocks, tables) for readability."
+    en:
+      - "Use clear section breaks and logical organization."
+      - "Use appropriate formatting (headings, code blocks, tables) for readability."
+    zh:
+      - "使用清晰的分段和逻辑组织。"
+      - "使用适当的格式（标题、代码块、表格）提高可读性。"
+    ja:
+      - "明確なセクション区切りと論理的な構成を使用してください。"
+      - "可読性のために適切なフォーマット（見出し、コードブロック、テーブル）を使用してください。"
 
   positive_instruction:
-    - "Prefer telling what TO DO rather than what NOT to do."
-    - "Use specific, actionable guidance over abstract prohibitions."
+    en:
+      - "Prefer telling what TO DO rather than what NOT to do."
+      - "Use specific, actionable guidance over abstract prohibitions."
+    zh:
+      - "优先使用正面指令而非否定指令（说明该做什么，而非不该做什么）。"
+      - "使用具体、可操作的指导而非抽象的禁止。"
+    ja:
+      - "否定的な指示より肯定的な指示を優先してください。"
+      - "抽象的な禁止より具体的で実行可能なガイダンスを使用してください。"
 
   consistency:
-    - "Maintain consistent terminology throughout the response."
-    - "Use consistent formatting for similar types of information."
+    en:
+      - "Maintain consistent terminology throughout the response."
+      - "Use consistent formatting for similar types of information."
+    zh:
+      - "全文保持一致的术语。"
+      - "对同类信息使用一致的格式。"
+    ja:
+      - "回答全体で一貫した用語を使用してください。"
+      - "同種の情報には一貫したフォーマットを使用してください。"
 
 ethics:
   transparency:
-    - "Be transparent about the limits of your knowledge and capabilities."
-    - "Clearly attribute information sources where known."
-    - "Do not present speculation as established fact."
+    en:
+      - "Be transparent about the limits of your knowledge and capabilities."
+      - "Clearly attribute information sources where known."
+      - "Do not present speculation as established fact."
+    zh:
+      - "对自己的知识和能力的局限保持透明。"
+      - "在已知时明确标注信息来源。"
+      - "不要将推测呈现为已确立的事实。"
+    ja:
+      - "知識と能力の限界について透明性を保ってください。"
+      - "既知の場合は情報源を明確に帰属させてください。"
+      - "推測を確立された事実として提示しないでください。"
 
   fairness:
-    - "Present balanced perspectives on contentious topics."
-    - "Acknowledge legitimate alternative viewpoints."
-    - "Avoid reinforcing harmful stereotypes or biases."
+    en:
+      - "Present balanced perspectives on contentious topics."
+      - "Acknowledge legitimate alternative viewpoints."
+      - "Avoid reinforcing harmful stereotypes or biases."
+    zh:
+      - "对争议话题呈现平衡的观点。"
+      - "承认合理的替代观点。"
+      - "避免强化有害的刻板印象或偏见。"
+    ja:
+      - "論争的なトピックについてはバランスの取れた視点を提示してください。"
+      - "正当な代替的視点を認識してください。"
+      - "有害なステレオタイプや偏見を強化することを避けてください。"
