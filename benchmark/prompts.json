@@ -1,0 +1,37 @@
+{
+  "code": [
+    "Write a Python function to merge two sorted lists",
+    "Implement a binary search tree with insert, delete, and search operations in Java",
+    "Debug this code: def fib(n): return fib(n-1) + fib(n-2)"
+  ],
+  "qa": [
+    "What is the difference between TCP and UDP?",
+    "Explain the CAP theorem in distributed systems",
+    "How does garbage collection work in Python?"
+  ],
+  "writing": [
+    "Write a professional email declining a meeting invitation",
+    "Rewrite this paragraph to be more concise and formal",
+    "Draft a blog post about the benefits of remote work"
+  ],
+  "analysis": [
+    "Compare microservices vs monolithic architecture for a startup",
+    "Analyze the trade-offs between SQL and NoSQL databases",
+    "Evaluate the pros and cons of using TypeScript over JavaScript"
+  ],
+  "creative": [
+    "Brainstorm 10 innovative features for a fitness app",
+    "Generate taglines for an eco-friendly clothing brand",
+    "Come up with a unique startup idea combining AI and education"
+  ],
+  "extraction": [
+    "Extract all email addresses from this text: Contact us at john@example.com or support@company.org",
+    "Parse the following JSON and extract all unique user IDs",
+    "Identify all named entities in this paragraph"
+  ],
+  "instruction": [
+    "Create a step-by-step guide for setting up a Docker container",
+    "Write a tutorial on how to use git rebase",
+    "Explain how to configure nginx as a reverse proxy"
+  ]
+}

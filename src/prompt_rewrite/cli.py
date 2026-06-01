@@ -15,6 +15,7 @@ from prompt_rewrite.core.types import (
     StrategyName,
     LLMConfig,
 )
+from prompt_rewrite.core.history import RewriteHistory
 # Pipeline imported lazily inside main() to allow step-by-step development
 
 
@@ -135,6 +136,21 @@ def _msg(key: str, lang: str = "zh", *args) -> str:
     type=click.Path(writable=True),
     help="输出到文件而非 stdout",
 )
+@click.option(
+    "--history",
+    is_flag=True,
+    help="保存本次重写到本地历史",
+)
+@click.option(
+    "--list-history",
+    type=int, default=0, metavar="N",
+    help="列出最近 N 条历史记录 (default: 0=不列出)",
+)
+@click.option(
+    "--clear-history",
+    is_flag=True,
+    help="清空所有历史记录",
+)
 def main(
     prompt: Optional[str] = None,
     preset: str = "full",
@@ -148,8 +164,35 @@ def main(
     api_key: Optional[str] = None,
     model: Optional[str] = None,
     output: Optional[str] = None,
+    history: bool = False,
+    list_history: int = 0,
+    clear_history: bool = False,
 ) -> None:
     """Prompt Rewrite System — 读取原始 prompt，输出优化后的高质量 prompt。"""
+
+    # Handle --clear-history and --list-history before requiring input
+    hist = RewriteHistory()
+    if clear_history:
+        count = hist.clear()
+        click.echo(f"✅ 已清空 {count} 条历史记录")
+        if not prompt and list_history == 0:
+            return
+    if list_history > 0:
+        entries = hist.list_recent(list_history)
+        if not entries:
+            click.echo("(无历史记录)")
+        else:
+            click.echo(f"最近 {len(entries)} 条重写历史:")
+            click.echo("─" * 60)
+            import time as _time
+            for e in entries:
+                ts = _time.strftime("%Y-%m-%d %H:%M", _time.localtime(e.timestamp))
+                preview = e.original[:50].replace(chr(10), " ")
+                click.echo(f"  #{e.id} [{ts}] [{e.category}] {preview}...")
+                click.echo(f"       策略: {', '.join(e.applied_strategies)}")
+            click.echo()
+        if not prompt:
+            return
 
     raw = _read_input(prompt)
     if not raw.strip():
@@ -231,6 +274,19 @@ def main(
         out_lines.append("")
 
     final = "\n".join(out_lines)
+
+    # Save to history if --history flag
+    if history:
+        entry = hist.add(
+            original=raw,
+            rewritten=result.rewritten,
+            category=result.analysis.category.value,
+            complexity=result.analysis.complexity.value,
+            applied_strategies=[s.value for s in result.applied_strategies],
+            diff_summary=result.diff_summary,
+            output_style=style,
+        )
+        click.echo(f"💾 已保存到历史 #{entry.id}")
 
     if output:
         with open(output, "w", encoding="utf-8") as f:

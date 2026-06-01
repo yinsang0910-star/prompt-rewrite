@@ -1,0 +1,385 @@
+{
+  "total": 21,
+  "correct": 16,
+  "overall_accuracy": 76.2,
+  "category_accuracy": {
+    "code": {
+      "correct": 3,
+      "total": 3,
+      "accuracy": 100.0
+    },
+    "qa": {
+      "correct": 3,
+      "total": 3,
+      "accuracy": 100.0
+    },
+    "writing": {
+      "correct": 2,
+      "total": 3,
+      "accuracy": 66.7
+    },
+    "analysis": {
+      "correct": 3,
+      "total": 3,
+      "accuracy": 100.0
+    },
+    "creative": {
+      "correct": 3,
+      "total": 3,
+      "accuracy": 100.0
+    },
+    "extraction": {
+      "correct": 2,
+      "total": 3,
+      "accuracy": 66.7
+    },
+    "instruction": {
+      "correct": 0,
+      "total": 3,
+      "accuracy": 0.0
+    }
+  },
+  "strategy_hit_counts": {
+    "structure_formatter": 21,
+    "role_enhancer": 21,
+    "output_formatter": 21
+  },
+  "details": [
+    {
+      "prompt": "Write a Python function to merge two sorted lists",
+      "expected": "code",
+      "detected": "code",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 49,
+      "rewritten_len": 593,
+      "length_ratio": 12.1,
+      "time_ms": 21.4
+    },
+    {
+      "prompt": "Implement a binary search tree with insert, delete, and search operations in Jav",
+      "expected": "code",
+      "detected": "code",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 81,
+      "rewritten_len": 625,
+      "length_ratio": 7.72,
+      "time_ms": 0.7
+    },
+    {
+      "prompt": "Debug this code: def fib(n): return fib(n-1) + fib(n-2)",
+      "expected": "code",
+      "detected": "code",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 55,
+      "rewritten_len": 599,
+      "length_ratio": 10.89,
+      "time_ms": 0.8
+    },
+    {
+      "prompt": "What is the difference between TCP and UDP?",
+      "expected": "qa",
+      "detected": "qa",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 43,
+      "rewritten_len": 424,
+      "length_ratio": 9.86,
+      "time_ms": 0.4
+    },
+    {
+      "prompt": "Explain the CAP theorem in distributed systems",
+      "expected": "qa",
+      "detected": "qa",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 46,
+      "rewritten_len": 427,
+      "length_ratio": 9.28,
+      "time_ms": 0.4
+    },
+    {
+      "prompt": "How does garbage collection work in Python?",
+      "expected": "qa",
+      "detected": "qa",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 43,
+      "rewritten_len": 491,
+      "length_ratio": 11.42,
+      "time_ms": 0.6
+    },
+    {
+      "prompt": "Write a professional email declining a meeting invitation",
+      "expected": "writing",
+      "detected": "unknown",
+      "correct": false,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 57,
+      "rewritten_len": 355,
+      "length_ratio": 6.23,
+      "time_ms": 0.9
+    },
+    {
+      "prompt": "Rewrite this paragraph to be more concise and formal",
+      "expected": "writing",
+      "detected": "writing",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 52,
+      "rewritten_len": 421,
+      "length_ratio": 8.1,
+      "time_ms": 0.5
+    },
+    {
+      "prompt": "Draft a blog post about the benefits of remote work",
+      "expected": "writing",
+      "detected": "writing",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 51,
+      "rewritten_len": 420,
+      "length_ratio": 8.24,
+      "time_ms": 0.5
+    },
+    {
+      "prompt": "Compare microservices vs monolithic architecture for a startup",
+      "expected": "analysis",
+      "detected": "analysis",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 62,
+      "rewritten_len": 575,
+      "length_ratio": 9.27,
+      "time_ms": 0.5
+    },
+    {
+      "prompt": "Analyze the trade-offs between SQL and NoSQL databases",
+      "expected": "analysis",
+      "detected": "analysis",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 54,
+      "rewritten_len": 567,
+      "length_ratio": 10.5,
+      "time_ms": 0.8
+    },
+    {
+      "prompt": "Evaluate the pros and cons of using TypeScript over JavaScript",
+      "expected": "analysis",
+      "detected": "analysis",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 62,
+      "rewritten_len": 633,
+      "length_ratio": 10.21,
+      "time_ms": 0.9
+    },
+    {
+      "prompt": "Brainstorm 10 innovative features for a fitness app",
+      "expected": "creative",
+      "detected": "creative",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 51,
+      "rewritten_len": 419,
+      "length_ratio": 8.22,
+      "time_ms": 0.8
+    },
+    {
+      "prompt": "Generate taglines for an eco-friendly clothing brand",
+      "expected": "creative",
+      "detected": "creative",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 52,
+      "rewritten_len": 420,
+      "length_ratio": 8.08,
+      "time_ms": 0.5
+    },
+    {
+      "prompt": "Come up with a unique startup idea combining AI and education",
+      "expected": "creative",
+      "detected": "creative",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 61,
+      "rewritten_len": 429,
+      "length_ratio": 7.03,
+      "time_ms": 0.8
+    },
+    {
+      "prompt": "Extract all email addresses from this text: Contact us at john@example.com or su",
+      "expected": "extraction",
+      "detected": "extraction",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 97,
+      "rewritten_len": 504,
+      "length_ratio": 5.2,
+      "time_ms": 0.8
+    },
+    {
+      "prompt": "Parse the following JSON and extract all unique user IDs",
+      "expected": "extraction",
+      "detected": "extraction",
+      "correct": true,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 56,
+      "rewritten_len": 463,
+      "length_ratio": 8.27,
+      "time_ms": 0.6
+    },
+    {
+      "prompt": "Identify all named entities in this paragraph",
+      "expected": "extraction",
+      "detected": "creative",
+      "correct": false,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 45,
+      "rewritten_len": 414,
+      "length_ratio": 9.2,
+      "time_ms": 0.5
+    },
+    {
+      "prompt": "Create a step-by-step guide for setting up a Docker container",
+      "expected": "instruction",
+      "detected": "code",
+      "correct": false,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 61,
+      "rewritten_len": 605,
+      "length_ratio": 9.92,
+      "time_ms": 0.5
+    },
+    {
+      "prompt": "Write a tutorial on how to use git rebase",
+      "expected": "instruction",
+      "detected": "code",
+      "correct": false,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 41,
+      "rewritten_len": 520,
+      "length_ratio": 12.68,
+      "time_ms": 0.4
+    },
+    {
+      "prompt": "Explain how to configure nginx as a reverse proxy",
+      "expected": "instruction",
+      "detected": "qa",
+      "correct": false,
+      "complexity": "simple",
+      "strategies": [
+        "structure_formatter",
+        "role_enhancer",
+        "output_formatter"
+      ],
+      "original_len": 49,
+      "rewritten_len": 430,
+      "length_ratio": 8.78,
+      "time_ms": 0.4
+    }
+  ]
+}
