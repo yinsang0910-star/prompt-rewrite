@@ -24,3 +24,9 @@ __all__ = [
     "RewritePipeline",
     "main",
 ]
+
+from prompt_rewrite.decorators import optimize
+
+__all__ = [
+    "optimize",
+]
