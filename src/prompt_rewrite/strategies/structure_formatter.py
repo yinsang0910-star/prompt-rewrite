@@ -41,30 +41,35 @@ class StructureFormatter(RewriteStrategy):
     name: ClassVar[StrategyName] = StrategyName.STRUCTURE_FORMATTER
     priority: ClassVar[int] = 10  # Very early in pipeline
 
-    # Section boundary markers
+    # Section boundary markers (EN + CN)
     _SECTION_PATTERNS: ClassVar[dict[str, list[str]]] = {
         "instructions": [
             r"(instructions?|task|your task|what to do|please)\s*[:：]",
             r"(i want you to|i need you to|your job is)",
             r"(follow these|do the following|perform the)",
+            r"(任务|指令|要求|请执行|请完成)\s*[:：]",
         ],
         "context": [
             r"(context|background|situation|scenario|about)\s*[:：]",
             r"(given that|considering|provided that)",
             r"(here's the situation|here is some context)",
+            r"(背景|上下文|场景|情况|前提)\s*[:：]",
         ],
         "input": [
             r"(input|text|content|below|following)\s*[:：]",
             r"(here'?s the|here is the|this is the)",
             r"(data|document|article|passage|code)",
+            r"(输入|内容|数据|文本|以下是|下面是)\s*[:：]",
         ],
         "examples": [
             r"(example|e\.g\.|for instance|for example)",
             r"(input\s*\d?\s*[:：].*output\s*\d?\s*[:：])",
+            r"(示例|例子|例如|比如|样例)\s*[:：]",
         ],
         "output": [
             r"(output|format|response format|expected output)\s*[:：]",
             r"(return as|respond with|in the format)",
+            r"(输出|格式|返回格式|期望输出|请以.*格式)\s*[:：]",
         ],
     }
 

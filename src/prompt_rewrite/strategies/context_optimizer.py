@@ -128,31 +128,40 @@ class ContextOptimizer(RewriteStrategy):
         return [b.strip() for b in blocks if b.strip()]
 
     def _classify_block(self, block: str) -> str:
-        """Classify a block as 'data', 'query', or 'structural'."""
+        """Classify a block as 'data', 'query', or 'structural'.
+
+        T3.8: Uses keyword, punctuation, and length signals — not just length alone.
+        """
         block = block.strip()
 
         # Structural blocks: role, constraints, etc.
-        if re.match(r"<(role|constraints|thinking|instructions)>", block):
+        if re.match(r"<(role|constraints|thinking|instructions|output_format)>", block):
             return "structural"
-
-        # Data blocks: long text, documents, context
-        if len(block) > 300:
-            return "data"
 
         # Code blocks are always data (they provide context)
         if block.startswith("```") or "```" in block:
             return "data"
 
-        # Query blocks: end with ?, are short instructions
-        if block.strip().endswith("?") and len(block) < 200:
+        # Data blocks: long text, documents, context (primary signal: length)
+        if len(block) > 300:
+            return "data"
+
+        # Query signals: ends with ?, contains question words, is short
+        query_keywords = re.search(
+            r"(what|how|why|explain|write|create|tell|list|find|compare|summarize|"
+            r"请|怎么|如何|为什么|写|创建|解释|列出|对比|总结)",
+            block, re.IGNORECASE,
+        )
+        is_question = block.strip().endswith("?") or block.strip().endswith("？")
+        is_short = len(block) < 200
+
+        if is_question and is_short:
+            return "query"
+        if query_keywords and is_short:
             return "query"
 
-        # Short instruction-like text
-        if len(block) < 200 and re.search(
-            r"(what|how|why|explain|write|create|tell|list|find|compare|summarize)",
-            block,
-            re.IGNORECASE,
-        ):
+        # Short blocks without data signals → query
+        if is_short and not re.search(r"[。；\n]", block):
             return "query"
 
         # Default: data

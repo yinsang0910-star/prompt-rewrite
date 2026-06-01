@@ -74,7 +74,11 @@ class LLMAnalyzer:
 
         domains = llm_result.get("domains", [])
         intent = llm_result.get("intent", "")
+        # T3.12: Validate language against whitelist
+        _VALID_LANGUAGES = {"zh", "en", "ja", "other"}
         language = llm_result.get("language", rule_result.language)
+        if language not in _VALID_LANGUAGES:
+            language = rule_result.language
 
         return AnalysisResult(
             category=category,
@@ -85,6 +89,7 @@ class LLMAnalyzer:
             has_structured_output=rule_result.has_structured_output,
             estimated_tokens=rule_result.estimated_tokens,
             domains=domains[:3] if domains else rule_result.domains,
-            key_entities=rule_result.key_entities + ([intent] if intent else []),
+            key_entities=rule_result.key_entities,
             raw_length=rule_result.raw_length,
+            intent=intent or None,  # T3.11: dedicated field, not appended to entities
         )

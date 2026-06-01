@@ -139,7 +139,7 @@ class ChainOfThoughtInjector(RewriteStrategy):
             r"一步一步",
             r"逐步思考",
         ]
-        return any(re.search(p, prompt[:300], re.IGNORECASE) for p in patterns)
+        return any(re.search(p, prompt[:1000], re.IGNORECASE) for p in patterns)
 
     def should_apply(
         self,

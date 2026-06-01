@@ -11,18 +11,18 @@ from prompt_rewrite.core.types import (
     ComplexityLevel,
 )
 
-# ── category detection patterns ──────────────────────────────────────────────
+# ── category detection patterns (precompiled for performance) ──────────────────
 
-_CODE_PATTERNS = [
+_CODE_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"```\w*\s*\n",          # code fences
     r"(def |class |import |from |function|const |let |var )",
     r"(print\(|console\.log|return |=>\s*\{)",
     r"(SELECT |INSERT |UPDATE |DELETE |CREATE TABLE)",
     r"(git |npm |pip |docker )",
     r"(write a function|implement|refactor|debug|code review)",
-]
+]]
 
-_WRITING_PATTERNS = [
+_WRITING_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"(write an (essay|article|story|poem|report|email|letter))",
     r"(rewrite|paraphrase|summarize|translate)",
     r"(proofread|grammar|polish|tone|style)",
@@ -32,9 +32,9 @@ _WRITING_PATTERNS = [
     r"(写.*(文章|博客|报告|故事|邮件|信|稿))",
     r"(翻译|润色|改写|总结|摘要|校对)",
     r"(语法|风格|语调|措辞|修辞|文风)",
-]
+]]
 
-_ANALYSIS_PATTERNS = [
+_ANALYSIS_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"(compare and contrast|analyze|evaluate|explain why)",
     r"(pros and cons|advantages?|disadvantages?)",
     r"(root cause|impact|implication|significance)",
@@ -43,9 +43,13 @@ _ANALYSIS_PATTERNS = [
     r"(architecture|system design|architecture design)",
     r"(trade.?offs|tradeoffs|trade offs)",
     r"(design a (system|architecture|solution|platform))",
-]
+    # Chinese analysis patterns
+    r"(分析|评估|对比|权衡|优缺点|利弊|影响|意义)",
+    r"(设计.*(系统|架构|方案|平台))",
+    r"(为什么|怎么回事|根本原因|深层原因)",
+]]
 
-_CREATIVE_PATTERNS = [
+_CREATIVE_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"(brainstorm|generate ideas|creative writing)",
     r"(come up with|imagine|invent)",
     r"(design a (logo|poster|ui|interface|homepage|website|dashboard))",
@@ -54,39 +58,57 @@ _CREATIVE_PATTERNS = [
     r"(what would happen if|alternate)",
     r"(write a (poem|story|song|script))",
     r"(creative|artistic|aesthetic)",
-]
+    # Chinese creative patterns
+    r"(头脑风暴|创意|灵感|构思|想象)",
+    r"(设计.*(logo|海报|界面|网页|仪表盘))",
+]]
 
-_EXTRACTION_PATTERNS = [
+_EXTRACTION_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"(extract|parse|convert this (to|into))",
     r"(structured data|JSON|CSV|table|schema)",
     r"(pull out|gather|collect|list all)",
     r"(named entities|keywords?|summary)",
     r"(from this text|from the following)",
-]
+    # Chinese extraction patterns
+    r"(提取|解析|转换|结构化)",
+    r"(从.*(中提取|中解析|中找出))",
+    r"(关键词|摘要|实体|表格)",
+]]
 
-_QA_PATTERNS = [
+_QA_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"^(what|who|where|when|why|how|which)",
     r"(tell me about|explain|define|describe)",
     r"(difference between|meaning of|example of)",
     r"(\?$)",  # ends with question mark
     r"(clarify|confused about|wondering)",
-]
+    # Chinese QA patterns
+    r"^(什么是|谁是|在哪|为什么|怎么|如何|哪个)",
+    r"(告诉我|解释一下|定义|描述)",
+    r"(区别|含义|意思|是什么)",
+]]
 
-_CONVERSATION_PATTERNS = [
+_CONVERSATION_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"\b(hello|hi|hey)\b",
     r"\b(good morning|good evening|good afternoon)\b",
     r"\b(how are you|nice to meet|what'?s up|how do you do)\b",
     r"\b(thanks|thank you|appreciate it)\b",
-]
+    # Chinese conversation patterns
+    r"(你好|嗨|早上好|晚上好|下午好)",
+    r"(谢谢|感谢|怎么样|最近好吗)",
+]]
 
-_INSTRUCTION_PATTERNS = [
+_INSTRUCTION_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"(please |i need you to|your task is)",
     r"(act as|you are a|role.?play|as an? )",
     r"(follow these steps|step [1-9])",
     r"(do not |don'?t |never |always )",
     r"(output|return|respond with|format)",
     r"(provide a detailed )",
-]
+    # Chinese instruction patterns
+    r"(请|你需要|你的任务是|帮我)",
+    r"(作为|扮演|你是|角色扮演)",
+    r"(按照.*步骤|第[1-9]步|不要|必须|始终)",
+]]
 
 # ── language detection ───────────────────────────────────────────────────────
 
@@ -159,35 +181,35 @@ class PromptAnalyzer:
         # to avoid false negatives; categories with many broad patterns (CODE, QA,
         # CONVERSATION, INSTRUCTION) get weight 2 to reduce false positives.
         for pattern in _CODE_PATTERNS:
-            if re.search(pattern, text, re.IGNORECASE):
+            if pattern.search(text):
                 scores[PromptCategory.CODE] += 2
 
         for pattern in _WRITING_PATTERNS:
-            if re.search(pattern, text, re.IGNORECASE):
+            if pattern.search(text):
                 scores[PromptCategory.WRITING] += 3
 
         for pattern in _ANALYSIS_PATTERNS:
-            if re.search(pattern, text, re.IGNORECASE):
+            if pattern.search(text):
                 scores[PromptCategory.ANALYSIS] += 3
 
         for pattern in _CREATIVE_PATTERNS:
-            if re.search(pattern, text, re.IGNORECASE):
+            if pattern.search(text):
                 scores[PromptCategory.CREATIVE] += 3
 
         for pattern in _EXTRACTION_PATTERNS:
-            if re.search(pattern, text, re.IGNORECASE):
+            if pattern.search(text):
                 scores[PromptCategory.EXTRACTION] += 3
 
         for pattern in _QA_PATTERNS:
-            if re.search(pattern, text, re.IGNORECASE):
+            if pattern.search(text):
                 scores[PromptCategory.QA] += 2
 
         for pattern in _CONVERSATION_PATTERNS:
-            if re.search(pattern, text, re.IGNORECASE):
+            if pattern.search(text):
                 scores[PromptCategory.CONVERSATION] += 2
 
         for pattern in _INSTRUCTION_PATTERNS:
-            if re.search(pattern, text, re.IGNORECASE):
+            if pattern.search(text):
                 scores[PromptCategory.INSTRUCTION] += 2
 
         best = max(scores, key=scores.get)
@@ -331,17 +353,27 @@ class PromptAnalyzer:
         return found
 
     def _extract_key_entities(self, text: str) -> list[str]:
-        """Extract key named entities and technical terms."""
-        # Simple extraction: capitalized multi-word phrases and backtick terms
+        """Extract key named entities and technical terms (EN + CN)."""
         entities: list[str] = []
 
         # Terms in backticks
         backtick_terms = re.findall(r"`([^`]+)`", text)
         entities.extend(t.strip() for t in backtick_terms if len(t.strip()) > 1)
 
-        # Capitalized multi-word phrases (potential proper nouns)
+        # Capitalized multi-word phrases (potential proper nouns) — English
         phrases = re.findall(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b", text)
         entities.extend(p for p in phrases if len(p) > 5)
+
+        # Chinese technical terms: 2-4 char phrases in quotes or brackets
+        cn_quoted = re.findall(r"[「『“](.*?)[」』”]", text)
+        entities.extend(t.strip() for t in cn_quoted if 1 < len(t.strip()) <= 10)
+
+        # Chinese compound nouns (技术/系统/架构/方案/框架/模型/算法/接口)
+        cn_tech = re.findall(
+            r"[一-鿿]{2,6}(?:技术|系统|架构|方案|框架|模型|算法|接口|服务|模块|组件)",
+            text,
+        )
+        entities.extend(cn_tech)
 
         # Unique only, max 10
         seen: set[str] = set()

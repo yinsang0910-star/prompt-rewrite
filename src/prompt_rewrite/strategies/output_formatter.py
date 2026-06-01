@@ -110,11 +110,21 @@ class OutputFormatter(RewriteStrategy):
         return f"{prompt}\n\n{output_section}"
 
     def _select_template(self, analysis: AnalysisResult) -> str:
-        """Pick the best output format template."""
-        # Check domain-specific templates
+        """Pick the best output format template.
+
+        T3.10: Activated comparison/list templates via domain + keyword matching.
+        """
+        # Domain-specific templates
         domain = analysis.domains[0] if analysis.domains else ""
         if domain in ("data_science", "finance"):
             return "extraction"
+
+        # Keyword-based matching for comparison/list templates
+        entities_lower = " ".join(analysis.key_entities).lower()
+        if any(kw in entities_lower for kw in ["compare", "versus", "vs", "对比", "比较"]):
+            return "comparison"
+        if analysis.category == PromptCategory.EXTRACTION:
+            return "list"
 
         # Category-based mapping
         return _CATEGORY_OUTPUT_MAP.get(analysis.category, "general")

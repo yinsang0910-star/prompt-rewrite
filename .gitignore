@@ -27,3 +27,4 @@ Thumbs.db
 *.log
 .reasonix/
 .workbuddy/
+.coverage

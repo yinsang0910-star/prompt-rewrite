@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "Bash(pytest *)",
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(git *)",
+      "Bash(npm *)",
+      "Bash(curl *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(which *)",
+      "Bash(env *)",
+      "Bash(rm *.pyc)",
+      "Bash(rm __pycache__ *)"
+    ],
+    "deny": [
+      "Bash(rm -rf)",
+      "Bash(rm -rf /)",
+      "Bash(sudo *)",
+      "Bash(del *)",
+      "Bash(format *)"
+    ]
+  }
+}

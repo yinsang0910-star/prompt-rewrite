@@ -137,7 +137,9 @@ class TestExampleFormatter:
         config = _make_config()
         prompt = "Do X\nExample 1:\nInput: hello\nOutput: olleh"
         result = s.apply(prompt, analysis, config)
-        assert "<examples>" in result or "<input>" in result or result == prompt
+        # T3.13: Stronger assertion — example formatter should produce XML tags
+        assert "<examples>" in result or "<input>" in result, \
+            f"Expected XML tags in output, got: {result[:200]}"
 
     def test_skips_no_examples(self):
         s = ExampleFormatter()

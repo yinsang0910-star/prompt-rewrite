@@ -57,6 +57,7 @@ class AnalysisResult:
     domains: list[str] = field(default_factory=list)  # 检测到的领域
     key_entities: list[str] = field(default_factory=list)  # 关键实体/概念
     raw_length: int = 0                            # 原始字符长度
+    intent: Optional[str] = None                   # 用户意图摘要（LLM 填充）
 
 
 @dataclass
