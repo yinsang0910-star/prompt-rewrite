@@ -41,12 +41,7 @@ class ConstraintInjector(RewriteStrategy):
     name: ClassVar[StrategyName] = StrategyName.CONSTRAINT_INJECTOR
     priority: ClassVar[int] = 30  # After role, before CoT
 
-    def apply(
-        self,
-        prompt: str,
-        analysis: AnalysisResult,
-        config: RewriteConfig,
-    ) -> str:
+    def apply(self, prompt: str, analysis: AnalysisResult, config: RewriteConfig, **kwargs: object) -> str:
         # Don't duplicate if constraints already present
         if self._has_constraints(prompt):
             return prompt

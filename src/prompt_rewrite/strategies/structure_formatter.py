@@ -73,12 +73,7 @@ class StructureFormatter(RewriteStrategy):
         ],
     }
 
-    def apply(
-        self,
-        prompt: str,
-        analysis: AnalysisResult,
-        config: RewriteConfig,
-    ) -> str:
+    def apply(self, prompt: str, analysis: AnalysisResult, config: RewriteConfig, **kwargs: object) -> str:
         # If already structured with XML tags, skip
         if self._already_structured(prompt):
             return prompt

@@ -143,7 +143,7 @@ class RewritePipeline:
             executed_steps.append(step.strategy)
             try:
                 strategy = StrategyRegistry.get(step.strategy)
-                transformed = strategy.apply(current, analysis, self.config)
+                transformed = strategy.apply(current, analysis, self.config, **step.params)
                 if transformed != current:
                     applied.append(step.strategy)
                     current = transformed
@@ -197,8 +197,8 @@ class RewritePipeline:
             error = "LLM returned identical content (may have failed silently)"
         elif not error and llm_rewritten.startswith("[LLM"):
             error = llm_rewritten
-        base._llm_error = error
-        
+        base = dataclasses.replace(base, _llm_error=error)
+
         if error:
             return base  # LLM 失败
 
@@ -220,10 +220,11 @@ class RewritePipeline:
 
         validator = LLMValidator(self.config.llm_config)
         score = validator.validate(original, rewritten)
-        # 将评分信息附加到 result（扩展属性）
-        result._llm_score = score.get("score", 0)
-        result._llm_feedback = score.get("suggestion", "")
-        return result
+        return dataclasses.replace(
+            result,
+            _llm_score=score.get("score", 0),
+            _llm_feedback=score.get("suggestion", ""),
+        )
 
     def run_with_strategies(self, prompt: str, strategy_names: list[StrategyName]) -> RewriteResult:
         """Run the pipeline with a custom strategy list (legacy mode)."""

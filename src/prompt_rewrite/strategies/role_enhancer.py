@@ -55,12 +55,7 @@ class RoleEnhancer(RewriteStrategy):
     name: ClassVar[StrategyName] = StrategyName.ROLE_ENHANCER
     priority: ClassVar[int] = 25  # Early in pipeline
 
-    def apply(
-        self,
-        prompt: str,
-        analysis: AnalysisResult,
-        config: RewriteConfig,
-    ) -> str:
+    def apply(self, prompt: str, analysis: AnalysisResult, config: RewriteConfig, **kwargs: object) -> str:
         # Determine best role key
         role_key = self._select_role(analysis)
         lang = analysis.language if analysis.language in ("zh", "ja") else "en"

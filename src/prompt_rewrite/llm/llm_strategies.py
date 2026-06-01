@@ -56,12 +56,7 @@ class LLMRewriter(RewriteStrategy):
         self.client = create_llm_client(llm_config) if (llm_config and llm_config.enabled) else None
         self.last_error: str = ""
 
-    def apply(
-        self,
-        prompt: str,
-        analysis: AnalysisResult,
-        config: RewriteConfig,
-    ) -> str:
+    def apply(self, prompt: str, analysis: AnalysisResult, config: RewriteConfig, **kwargs: object) -> str:
         if not self.client:
             return prompt
 

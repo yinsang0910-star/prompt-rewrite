@@ -212,12 +212,7 @@ class ChainOfThoughtInjector(RewriteStrategy):
     name: ClassVar[StrategyName] = StrategyName.CHAIN_OF_THOUGHT
     priority: ClassVar[int] = 45  # After structure and role, before output formatting
 
-    def apply(
-        self,
-        prompt: str,
-        analysis: AnalysisResult,
-        config: RewriteConfig,
-    ) -> str:
+    def apply(self, prompt: str, analysis: AnalysisResult, config: RewriteConfig, **kwargs: object) -> str:
         # Check if CoT already present
         if self._has_cot(prompt):
             return prompt

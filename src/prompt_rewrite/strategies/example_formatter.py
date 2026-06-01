@@ -40,12 +40,7 @@ class ExampleFormatter(RewriteStrategy):
     name: ClassVar[StrategyName] = StrategyName.EXAMPLE_FORMATTER
     priority: ClassVar[int] = 55  # After CoT, before output
 
-    def apply(
-        self,
-        prompt: str,
-        analysis: AnalysisResult,
-        config: RewriteConfig,
-    ) -> str:
+    def apply(self, prompt: str, analysis: AnalysisResult, config: RewriteConfig, **kwargs: object) -> str:
         if not analysis.has_examples:
             return prompt
 

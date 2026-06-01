@@ -38,12 +38,7 @@ class ContextOptimizer(RewriteStrategy):
     name: ClassVar[StrategyName] = StrategyName.CONTEXT_OPTIMIZER
     priority: ClassVar[int] = 15  # Early in pipeline
 
-    def apply(
-        self,
-        prompt: str,
-        analysis: AnalysisResult,
-        config: RewriteConfig,
-    ) -> str:
+    def apply(self, prompt: str, analysis: AnalysisResult, config: RewriteConfig, **kwargs: object) -> str:
         # Only reorder if the prompt is long enough to benefit
         if len(prompt) < 500:
             return prompt

@@ -123,7 +123,16 @@ class LLMConfig:
 
     @classmethod
     def from_env(cls) -> LLMConfig:
-        return cls(api_key=os.environ.get("DEEPSEEK_API_KEY", ""))
+        """Create config from environment variables.
+
+        Reads PRS_LLM_PROVIDER (default deepseek) and
+        PRS_API_KEY / {PROVIDER}_API_KEY for the key.
+        """
+        provider = os.environ.get("PRS_LLM_PROVIDER", "deepseek").lower()
+        key = os.environ.get("PRS_API_KEY", "")
+        if not key:
+            key = os.environ.get(f"{provider.upper()}_API_KEY", "")
+        return cls(provider=provider, api_key=key)
 
 
 @dataclass

@@ -103,12 +103,7 @@ class RefusalGuard(RewriteStrategy):
     name: ClassVar[StrategyName] = StrategyName.REFUSAL_GUARD
     priority: ClassVar[int] = 35  # After constraints, before CoT
 
-    def apply(
-        self,
-        prompt: str,
-        analysis: AnalysisResult,
-        config: RewriteConfig,
-    ) -> str:
+    def apply(self, prompt: str, analysis: AnalysisResult, config: RewriteConfig, **kwargs: object) -> str:
         if self._has_boundaries(prompt):
             return prompt
 

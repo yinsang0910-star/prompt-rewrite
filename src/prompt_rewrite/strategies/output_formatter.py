@@ -190,12 +190,7 @@ class OutputFormatter(RewriteStrategy):
     name: ClassVar[StrategyName] = StrategyName.OUTPUT_FORMATTER
     priority: ClassVar[int] = 70  # Late in pipeline, after content is structured
 
-    def apply(
-        self,
-        prompt: str,
-        analysis: AnalysisResult,
-        config: RewriteConfig,
-    ) -> str:
+    def apply(self, prompt: str, analysis: AnalysisResult, config: RewriteConfig, **kwargs: object) -> str:
         # Don't duplicate
         if self._has_output_format(prompt):
             return prompt

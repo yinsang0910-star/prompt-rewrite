@@ -46,6 +46,7 @@ class RewriteStrategy(abc.ABC):
         prompt: str,
         analysis: AnalysisResult,
         config: RewriteConfig,
+        **kwargs: object,
     ) -> str:
         """Apply the rewrite strategy and return the transformed prompt."""
         ...

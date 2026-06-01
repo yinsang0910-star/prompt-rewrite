@@ -172,3 +172,43 @@ class TestStrategyRegistry:
         all_s = StrategyRegistry.get_all()
         priorities = [s.priority for s in all_s]
         assert priorities == sorted(priorities)
+
+from prompt_rewrite.strategies.refusal_guard import RefusalGuard
+
+
+class TestRefusalGuard:
+    def test_injects_boundaries_for_code(self):
+        s = RefusalGuard()
+        analysis = _make_analysis(category=PromptCategory.CODE)
+        config = _make_config()
+        result = s.apply("write a function", analysis, config)
+        assert "<boundaries>" in result
+        assert "不要生成" in result or "Do not generate" in result
+
+    def test_skips_existing_boundaries(self):
+        s = RefusalGuard()
+        analysis = _make_analysis()
+        config = _make_config()
+        prompt = "Do something\n<boundaries>\nBe safe\n</boundaries>"
+        result = s.apply(prompt, analysis, config)
+        assert result.count("<boundaries>") == 1
+
+    def test_skips_conversation(self):
+        s = RefusalGuard()
+        analysis = _make_analysis(category=PromptCategory.CONVERSATION)
+        config = _make_config()
+        assert s.should_apply(analysis, config) is False
+
+    def test_uses_zh_for_chinese(self):
+        s = RefusalGuard()
+        analysis = _make_analysis(language="zh", category=PromptCategory.CODE)
+        config = _make_config()
+        result = s.apply("write code", analysis, config)
+        assert "不要生成" in result or "拒绝" in result
+
+    def test_professional_disclaimer_for_qa(self):
+        s = RefusalGuard()
+        analysis = _make_analysis(category=PromptCategory.QA)
+        config = _make_config()
+        result = s.apply("what is medicine", analysis, config)
+        assert "持牌" in result or "licensed" in result
