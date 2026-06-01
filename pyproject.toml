@@ -51,6 +51,10 @@ Repository = "https://github.com/yinsang0910-star/prompt-rewrite"
 [project.scripts]
 prompt-rewrite = "prompt_rewrite.cli:main"
 
+[project.entry-points."prompt_rewrite.strategies"]
+# Users can register custom strategies here
+# my_strategy = "my_package.strategies:MyStrategy"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

@@ -30,6 +30,7 @@ from prompt_rewrite.core.types import (
 )
 from prompt_rewrite.core.analyzer import PromptAnalyzer
 from prompt_rewrite.strategies.base import StrategyRegistry
+from prompt_rewrite.plugins import discover_all_plugins
 from prompt_rewrite.core.workflow_defs import (
     get_workflow,
     evaluate_condition,
@@ -75,6 +76,7 @@ class RewritePipeline:
     ):
         self.config = config or RewriteConfig()
         self.analyzer = analyzer or PromptAnalyzer()
+        discover_all_plugins()
         self._last_llm_raw: Optional[dict] = None
 
     @property
