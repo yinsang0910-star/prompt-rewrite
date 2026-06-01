@@ -5,6 +5,7 @@ Usage: prompt-rewrite [OPTIONS] [PROMPT_FILE]
 
 from __future__ import annotations
 
+import pathlib
 import sys
 from typing import Optional
 
@@ -151,6 +152,16 @@ def _msg(key: str, lang: str = "zh", *args) -> str:
     is_flag=True,
     help="清空所有历史记录",
 )
+@click.option(
+    "--json", "output_json",
+    is_flag=True,
+    help="输出 JSON 格式 (用于 CI/CD 集成)",
+)
+@click.option(
+    "--score",
+    is_flag=True,
+    help="显示重写前后的质量评分对比",
+)
 def main(
     prompt: Optional[str] = None,
     preset: str = "full",
@@ -167,6 +178,8 @@ def main(
     history: bool = False,
     list_history: int = 0,
     clear_history: bool = False,
+    output_json: bool = False,
+    score: bool = False,
 ) -> None:
     """Prompt Rewrite System — 读取原始 prompt，输出优化后的高质量 prompt。"""
 
@@ -238,6 +251,24 @@ def main(
 
     pipeline = RewritePipeline(config)
     result = pipeline.run(raw)
+
+    # Show quality scores if --score flag
+    if score:
+        from prompt_rewrite.core.quality import score_prompt
+        original_qs = score_prompt(raw)
+        rewritten_qs = score_prompt(result.rewritten)
+        click.echo("\nQuality Scores (0-10):")
+        click.echo(f"  {'Axis':15s} {'Original':>8s} {'Rewritten':>9s} {'Delta':>6s}")
+        click.echo("  " + "─" * 42)
+        for axis in ("clarity", "specificity", "structure", "safety", "completeness"):
+            orig = getattr(original_qs, axis)
+            rew = getattr(rewritten_qs, axis)
+            delta = rew - orig
+            sign = "+" if delta > 0 else ""
+            click.echo(f"  {axis:15s} {orig:8.1f} {rew:9.1f} {sign}{delta:5.1f}")
+        click.echo("  " + "─" * 42)
+        click.echo(f"  {'TOTAL':15s} {original_qs.total:8.1f} {rewritten_qs.total:9.1f} {rewritten_qs.total - original_qs.total:+.1f}")
+        click.echo()
 
     out_lines = []
     if verbose:
