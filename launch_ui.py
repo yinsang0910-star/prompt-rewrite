@@ -125,8 +125,9 @@ async def api_rewrite(req: Request):
     preset = body.get("preset", "full")
     language = body.get("language", "auto")
     no_cot = body.get("no_cot", False)
+    provider = body.get("provider", "deepseek")
     api_key = body.get("api_key", "")
-    model = body.get("model", "deepseek-v4-flash")
+    model = body.get("model", "")
     enhance_analysis = body.get("enhance_analysis", False)
     enhance_rewrite = body.get("enhance_rewrite", False)
     validate = body.get("validate", False)
@@ -136,15 +137,20 @@ async def api_rewrite(req: Request):
         if no_cot and StrategyName.CHAIN_OF_THOUGHT in enabled_strategies:
             enabled_strategies.remove(StrategyName.CHAIN_OF_THOUGHT)
 
-        llm_config = LLMConfig(api_key=api_key, model=model) if api_key else LLMConfig()
+        llm_enabled = bool(api_key) or provider == "ollama"
+        llm_config = LLMConfig(
+            provider=provider,
+            api_key=api_key,
+            **({"model": model} if model else {}),
+        ) if llm_enabled else LLMConfig()
         config = RewriteConfig(
             enabled_strategies=enabled_strategies,
             language=language,
             inject_chain_of_thought=not no_cot,
             llm_config=llm_config,
-            llm_enhance_analysis=enhance_analysis,
-            llm_enhance_rewrite=enhance_rewrite,
-            llm_validate=validate,
+            llm_enhance_analysis=enhance_analysis and llm_enabled,
+            llm_enhance_rewrite=enhance_rewrite and llm_enabled,
+            llm_validate=validate and llm_enabled,
         )
         pipeline = RewritePipeline(config=config)
         result = pipeline.run(prompt)
