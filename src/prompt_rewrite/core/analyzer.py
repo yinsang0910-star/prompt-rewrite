@@ -23,7 +23,7 @@ _CODE_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
 ]]
 
 _WRITING_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
-    r"(write an (essay|article|story|poem|report|email|letter))",
+    r"(write an? \w*\s*(essay|article|story|poem|report|email|letter))",
     r"(rewrite|paraphrase|summarize|translate)",
     r"(proofread|grammar|polish|tone|style)",
     r"(improve this (writing|text|paragraph))",
@@ -54,7 +54,7 @@ _CREATIVE_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"(come up with|imagine|invent)",
     r"(design a (logo|poster|ui|interface|homepage|website|dashboard))",
     r"(story (idea|setting|character|plot))",
-    r"(name|slogan|tagline|brand name)",
+    r"\b(names?|slogans?|taglines?|brand names?)\b",
     r"(what would happen if|alternate)",
     r"(write a (poem|story|song|script))",
     r"(creative|artistic|aesthetic)",
@@ -100,14 +100,19 @@ _CONVERSATION_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
 _INSTRUCTION_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
     r"(please |i need you to|your task is)",
     r"(act as|you are a|role.?play|as an? )",
-    r"(follow these steps|step [1-9])",
+    r"(follow these steps|step [1-9]|step.by.step)",
     r"(do not |don'?t |never |always )",
     r"(output|return|respond with|format)",
     r"(provide a detailed )",
+    r"(write a (tutorial|guide|walkthrough|how.to))",
+    r"(create a (tutorial|guide|walkthrough|step.by.step))",
+    r"(how to (set up|configure|install|deploy|build|create|use))",
+    r"(set up|configure|install|deploy) .* (server|container|environment|pipeline|service)",
     # Chinese instruction patterns
     r"(请|你需要|你的任务是|帮我)",
     r"(作为|扮演|你是|角色扮演)",
     r"(按照.*步骤|第[1-9]步|不要|必须|始终)",
+    r"(教程|指南|入门|搭建|配置|部署|安装)",
 ]]
 
 # ── language detection ───────────────────────────────────────────────────────
